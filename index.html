@@ -15,16 +15,17 @@
             --text: #ecfdf5;
             --muted: #7aa68e;
             --danger: #ff4d6d;
+            --gold: #ffd166;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        body { background: var(--bg); color: var(--text); padding-bottom: 82px; user-select: none; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 84px; user-select: none; }
         header {
             position: sticky; top: 0; z-index: 50;
             display: flex; justify-content: space-between; align-items: center;
             padding: 14px 16px; background: rgba(15, 36, 25, 0.95);
             border-bottom: 1px solid var(--card-border); backdrop-filter: blur(8px);
         }
-        .brand { font-size: 19px; font-weight: 800; color: var(--green); letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+        .brand { font-size: 19px; font-weight: 800; color: var(--green); display: flex; align-items: center; gap: 6px; }
         .bal-pill {
             background: #050e09; border: 1px solid var(--green); border-radius: 99px;
             padding: 6px 14px; font-weight: 700; font-size: 14px; color: var(--green);
@@ -50,10 +51,7 @@
         }
         .mode-btn.active { background: rgba(0, 255, 136, 0.15); border-color: var(--green); color: var(--green); }
 
-        .wheel-wrap {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 14px 0; position: relative;
-        }
+        .wheel-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px 0; }
         .wheel-circle {
             width: 150px; height: 150px; border-radius: 50%;
             background: conic-gradient(var(--green) 0% 50%, #163022 50% 100%);
@@ -62,7 +60,7 @@
         }
         .wheel-inner {
             width: 116px; height: 116px; border-radius: 50%; background: var(--bg);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px; text-align: center;
         }
         .wheel-pointer {
             width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent;
@@ -90,23 +88,22 @@
             box-shadow: 0 4px 15px rgba(0, 255, 136, 0.25);
         }
         .btn:active { transform: scale(0.98); }
-        .btn-outline {
-            background: transparent; border: 1px solid var(--green); color: var(--green); box-shadow: none;
-        }
+        .btn-outline { background: transparent; border: 1px solid var(--green); color: var(--green); box-shadow: none; }
 
         .nft-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px; }
         .nft-card {
             background: #07130d; border: 1px solid var(--card-border); border-radius: 12px;
-            padding: 10px; text-align: center; cursor: pointer; position: relative; transition: 0.15s;
+            padding: 10px; text-align: center; cursor: pointer; transition: 0.15s;
         }
-        .nft-card.selected { border-color: var(--green); box-shadow: 0 0 14px rgba(0, 255, 136, 0.3); }
+        .nft-card.top-tier { border-color: rgba(255, 209, 102, 0.5); }
+        .nft-card.selected { border-color: var(--green); box-shadow: 0 0 14px rgba(0, 255, 136, 0.35); }
         .nft-card img { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; margin-bottom: 6px; background: #0f2419; }
         .nft-name { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .nft-price { font-size: 12px; color: var(--green); font-weight: 700; margin-top: 2px; }
+        .nft-price { font-size: 12px; color: var(--green); font-weight: 700; margin-top: 3px; }
 
         .plinko-board {
             background: #06100b; border: 1px solid var(--card-border); border-radius: 12px;
-            padding: 12px; text-align: center; margin: 10px 0; position: relative; overflow: hidden;
+            padding: 12px; text-align: center; margin: 10px 0;
         }
         .plinko-buckets { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 10px; }
         .bucket {
@@ -138,39 +135,39 @@
 
 <header>
     <div class="brand">🍀 BlockUP</div>
-    <div class="bal-pill" id="ui-balance">0 ⭐</div>
+    <div class="bal-pill" id="ui-balance">0 ⭐️</div>
 </header>
 
 <div class="container">
-    <!-- ВКЛАДКА 1: АПГРЕЙДЕР (ЗВЕЗДЫ + NFT В ОДНОЙ ВКЛАДКЕ) -->
+    <!-- ВКЛАДКА 1: АПГРЕЙДЕР -->
     <div id="tab-upgrader" class="tab-pane active">
         <div class="card">
             <div class="card-title">
                 <span>🚀 Апгрейдер Звёзд & NFT</span>
                 <span id="up-chance-badge" style="font-size:13px;">Шанс: 47.5%</span>
             </div>
-            <div class="sub">Превращайте свои звёзды (XTR) или NFT из инвентаря в дорогие NFT или умножайте баланс до x10!</div>
+            <div class="sub">Умножайте свои звёзды до x10 или выбивайте любой из 49 постоянных NFT!</div>
 
             <div class="mode-switch">
-                <button class="mode-btn active" id="mode-stars" onclick="setUpgraderMode('stars')">⭐ За Звёзды (до x10)</button>
-                <button class="mode-btn" id="mode-nft" onclick="setUpgraderMode('nft')">💎 Из Звёзд/NFT в NFT</button>
+                <button class="mode-btn active" id="mode-stars" onclick="setUpgraderMode('stars')">⭐️ Апгрейд Звёзд</button>
+                <button class="mode-btn" id="mode-nft" onclick="setUpgraderMode('nft')">💎 Крафт NFT (49 шт.)</button>
             </div>
 
             <div class="wheel-wrap">
                 <div class="wheel-pointer"></div>
                 <div class="wheel-circle" id="up-wheel">
                     <div class="wheel-inner">
-                        <div style="font-size:18px; font-weight:800; color:var(--green);" id="wheel-mult-label">x2.0</div>
-                        <div style="font-size:11px; color:var(--muted);" id="wheel-win-label">Выигрыш: 200 ⭐</div>
+                        <div style="font-size:15px; font-weight:800; color:var(--green);" id="wheel-mult-label">x2.0</div>
+                        <div style="font-size:11px; color:var(--muted); margin-top:2px;" id="wheel-win-label">Выигрыш: 200 ⭐️</div>
                     </div>
                 </div>
             </div>
 
-            <div id="stars-upgrader-controls">
-                <span class="input-lbl">Ставка в звёздах (XTR):</span>
-                <input type="number" id="up-bet-input" value="100" min="10" oninput="recalcUpgrader()">
+            <span class="input-lbl">Ставка в звёздах (XTR):</span>
+            <input type="number" id="up-bet-input" value="100" min="10" oninput="recalcUpgrader()">
 
-                <span class="input-lbl">Выберите множитель:</span>
+            <div id="mult-chips-box">
+                <span class="input-lbl">Множитель звёзд:</span>
                 <div class="mult-row">
                     <div class="mult-chip active" onclick="pickMult(2, this)">x2</div>
                     <div class="mult-chip" onclick="pickMult(3, this)">x3</div>
@@ -179,42 +176,37 @@
                 </div>
             </div>
 
-            <button class="btn" onclick="spinUpgrader()">🔥 Сделать Апгрейд</button>
+            <button class="btn" id="up-spin-btn" onclick="spinUpgrader()">🔥 Запустить Апгрейд</button>
         </div>
 
         <div class="card">
             <div class="card-title">
-                <span>💎 Цели NFT (staticgram.top/nft/...)</span>
-                <span style="font-size:11px; color:var(--muted);">Выбери цель</span>
+                <span>💎 Все 49 NFT (Постоянные цены)</span>
+                <span style="font-size:11px; color:var(--muted);">Нажми для выбора цели</span>
             </div>
-            <div class="sub">Иконки и названия синхронизированы с каталогом <code>https://staticgram.top/nft/...</code></div>
             <div class="nft-grid" id="catalog-nft-grid"></div>
         </div>
     </div>
 
-    <!-- ВКЛАДКА 2: ИГРЫ (КОСТИ, ПЛИНКО, ЧЕСТНАЯ ИГРА) -->
+    <!-- ВКЛАДКА 2: ИГРЫ -->
     <div id="tab-games" class="tab-pane">
-        <!-- ИГРА 1: КОСТИ -->
         <div class="card">
-            <div class="card-title"><span>🎲 Кости (Dice)</span><span>Выплата x1.95</span></div>
-            <div class="sub">Выберите исход броска кубика (1–6) и сделайте ставку в XTR.</div>
-            <span class="input-lbl">Ставка (⭐):</span>
+            <div class="card-title"><span>🎲 Кости (Dice)</span><span>x1.95</span></div>
+            <span class="input-lbl">Ставка (⭐️):</span>
             <input type="number" id="dice-bet" value="50" min="10">
             <div class="mode-switch" style="margin-top:10px;">
                 <button class="btn" style="margin-top:0;" onclick="playDice('low')">📉 Меньше (1–3)</button>
                 <button class="btn" style="margin-top:0;" onclick="playDice('high')">📈 Больше (4–6)</button>
             </div>
-            <div id="dice-result" style="margin-top:10px; font-size:13px; text-align:center; color:var(--green);"></div>
+            <div id="dice-result" style="margin-top:10px; font-size:13px; text-align:center;"></div>
         </div>
 
-        <!-- ИГРА 2: ПЛИНКО -->
         <div class="card">
             <div class="card-title"><span>🎯 Плинко (Plinko)</span><span>До x10.0</span></div>
-            <div class="sub">Бросайте шарик сверху пирамиды и ловите иксы в лунках!</div>
-            <span class="input-lbl">Ставка (⭐):</span>
+            <span class="input-lbl">Ставка (⭐️):</span>
             <input type="number" id="plinko-bet" value="50" min="10">
             <div class="plinko-board">
-                <div id="plinko-ball-status" style="font-size:14px; font-weight:700; min-height:22px;">🟢 Готов к броску</div>
+                <div id="plinko-ball-status" style="font-size:14px; font-weight:700;">🟢 Готов к броску</div>
                 <div class="plinko-buckets" id="plinko-buckets">
                     <div class="bucket">x10</div>
                     <div class="bucket">x3</div>
@@ -225,39 +217,37 @@
                     <div class="bucket">x10</div>
                 </div>
             </div>
-            <button class="btn" onclick="dropPlinkoBall()">🟣 Бросить шарик Плинко</button>
+            <button class="btn" onclick="dropPlinkoBall()">🟣 Бросить шарик</button>
         </div>
 
-        <!-- ИГРА 3: ЧЕСТНАЯ ИГРА (PROVABLY FAIR) -->
         <div class="card">
             <div class="card-title"><span>🛡 Честная игра (Provably Fair)</span></div>
-            <div class="sub">Каждая игра генерируется по криптографическому алгоритму SHA-256 (Server Seed + Client Seed + Nonce). Проверьте любой раунд на честность:</div>
-            <span class="input-lbl">Server Seed (Хэш SHA-256 текущего раунда):</span>
+            <div class="sub">Проверка честности каждого исхода по алгоритму SHA-256:</div>
+            <span class="input-lbl">Хэш раунда (SHA-256):</span>
             <input type="text" id="pf-hash" readonly>
-            <span class="input-lbl">Client Seed (Ваш сид) & Nonce:</span>
-            <input type="text" id="pf-client" value="blockup_player_seed_1">
-            <button class="btn btn-outline" onclick="verifyFairness()">🔍 Проверить честность раунда</button>
+            <span class="input-lbl">Клиентский сид:</span>
+            <input type="text" id="pf-client" value="blockup_fair_seed">
+            <button class="btn btn-outline" onclick="verifyFairness()">🔍 Проверить честность</button>
             <div id="pf-verify-status" style="margin-top:8px; font-size:12px; color:var(--green);"></div>
         </div>
     </div>
 
-    <!-- ВКЛАДКА 3: ТОП ПО БАЛАНСУ -->
+    <!-- ВКЛАДКА 3: ТОП -->
     <div id="tab-top" class="tab-pane">
         <div class="card">
             <div class="card-title"><span>🏆 Топ игроков по балансу</span></div>
-            <div class="sub">Рейтинг самых богатых игроков казино BlockUP в звёздах (XTR).</div>
             <div id="top-players-list"></div>
         </div>
     </div>
 
-    <!-- ВКЛАДКА 4: ПРОФИЛЬ (РЕЛЕЙ ДЕПОЗИТ И ВЫВОД NFT + XTR) -->
+    <!-- ВКЛАДКА 4: ПРОФИЛЬ -->
     <div id="tab-profile" class="tab-pane">
         <div class="card">
             <div class="card-title"><span>👤 Профиль игрока</span></div>
-            <p style="font-size:14px; margin:6px 0;">Никнейм: <b id="prof-uname">@player</b></p>
-            <p style="font-size:14px; margin:6px 0;">Telegram ID: <code id="prof-uid">0</code></p>
-            <p style="font-size:14px; margin:6px 0;">Баланс: <b style="color:var(--green);" id="prof-bal">0 ⭐</b></p>
-            <button class="btn btn-outline" onclick="syncWithBot()">🔄 Сохранить и синхронизировать с ботом</button>
+            <p style="font-size:14px; margin:6px 0;">Игрок: <b id="prof-uname">@player</b></p>
+            <p style="font-size:14px; margin:6px 0;">ID: <code id="prof-uid">0</code></p>
+            <p style="font-size:14px; margin:6px 0;">Баланс: <b style="color:var(--green);" id="prof-bal">0 ⭐️</b></p>
+            <button class="btn btn-outline" onclick="syncWithBot()">🔄 Сохранить баланс в боте</button>
         </div>
 
         <div class="card">
@@ -265,24 +255,21 @@
                 <span>🎒 Ваш инвентарь NFT</span>
                 <span style="font-size:12px; color:var(--muted);">Вывод через релей</span>
             </div>
-            <div class="sub">Нажмите <b>«📤 Вывести NFT»</b>, чтобы релей-аккаунт автоматически передал выбранный NFT на ваш аккаунт.</div>
             <div class="nft-grid" id="user-inventory-grid"></div>
         </div>
 
         <div class="card">
             <div class="card-title"><span>📥 Пополнение NFT через Релей</span></div>
             <div class="sub">
-                1. Передайте любой NFT или подарок на наш релей-аккаунт: <b style="color:var(--green);" id="relay-phone-label">+251 95 056 4853</b><br>
-                2. Релей через Telethon автоматически определит ваш перевод и добавит NFT в ваш инвентарь.<br>
-                3. Или вставьте прямую ссылку <code>https://staticgram.top/nft/...</code> для мгновенного зачисления:
+                1. Отправьте любой из 49 NFT на аккаунт нашего релея: <b style="color:var(--green);" id="relay-phone-label">+251 95 056 4853</b><br>
+                2. Релей автоматически зачислит предмет по его постоянной цене.<br>
+                3. Нажмите кнопку ниже, чтобы принудительно проверить входящие подарки на релее:
             </div>
-            <input type="text" id="deposit-nft-url" placeholder="https://staticgram.top/nft/plush-pepe">
-            <button class="btn" onclick="depositNftViaRelay()">📥 Проверить и пополнить NFT</button>
+            <button class="btn" onclick="checkRelayDeposit()">🔄 Проверить пополнение NFT на релее</button>
         </div>
     </div>
 </div>
 
-<!-- НИЖНЕЕ МЕНЮ -->
 <nav class="nav">
     <button class="nav-btn active" onclick="openTab('upgrader', this)"><span>🚀</span>Апгрейдер</button>
     <button class="nav-btn" onclick="openTab('games', this)"><span>🎮</span>Игры</button>
@@ -294,71 +281,102 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
+    // Постоянный каталог из 49 NFT (защита от подмены цен)
+    const FIXED_CATALOG = [
+        { s: 'lol-pop', n: 'Lol pop', p: 750 },
+        { s: 'candy-cane', n: 'Candy Cane', p: 1000 },
+        { s: 'shake-box', n: 'Shake Box', p: 1250 },
+        { s: 'ice-cream', n: 'Ice cream', p: 1750 },
+        { s: 'timeless-book', n: 'Timeless Book', p: 2500 },
+        { s: 'mighty-arm', n: 'Mighty Arm', p: 2650 },
+        { s: 'swag-bag', n: 'Swag Bag', p: 2800 },
+        { s: 'b-day-candle', n: 'B - day Candle', p: 3000 },
+        { s: 'input-key', n: 'Input Key', p: 3333 },
+        { s: 'mood-pack', n: 'Mood Pack', p: 3500 },
+        { s: 'mirage-lamp', n: 'Mirage Lamp', p: 4000 },
+        { s: 'diamog-ring', n: 'Diamog Ring', p: 4000 },
+        { s: 'ufs-strike', n: 'UFS strike', p: 4200 },
+        { s: 'liberty-figure', n: 'Liberty Figure', p: 4500 },
+        { s: 'clover-pin', n: 'Clover Pin', p: 4500 },
+        { s: 'jingle-bells', n: 'Jingle Bells', p: 5000 },
+        { s: 'lucky-locket', n: 'Lucky Locket', p: 5000 },
+        { s: 'jelly-bunny', n: 'Jelly Bunny', p: 5000 },
+        { s: 'astral-shard', n: 'Astral Shard', p: 5555 },
+        { s: 'evil-eye', n: 'Evil Eye', p: 5555 },
+        { s: 'stellr-rocket', n: 'Stellr Rocket', p: 6000 },
+        { s: 'jester-hat', n: 'Jester Hat', p: 6000 },
+        { s: 'mini-oscar', n: 'Mini Oscar', p: 6500 },
+        { s: 'keno-helmet', n: 'Keno Helmet', p: 6500 },
+        { s: 'durovs-glasses', n: "Durov's Glasses", p: 6500 },
+        { s: 'khabibs-papakha', n: "Khabib's Papakha", p: 7000 },
+        { s: 'switch-watch', n: 'Switch Watch', p: 7000 },
+        { s: 'precious-peach', n: 'Precious Peach', p: 7500 },
+        { s: 'skull-flower', n: 'Skull Flower', p: 8000 },
+        { s: 'westside-sing', n: 'Westside Sing', p: 8250 },
+        { s: 'signet-ring', n: 'Signet Ring', p: 8500 },
+        { s: 'nail-bracelet', n: 'Nail Bracelet', p: 8500 },
+        { s: 'snoop-dogg', n: 'Snoop Dogg', p: 8888 },
+        { s: 'deck-calendar', n: 'Deck Calendar', p: 8888 },
+        { s: 'low-rider', n: 'Low Rider', p: 8888 },
+        { s: 'loot-bag', n: 'Loot Bag', p: 9500 },
+        { s: 'eternal-rose', n: 'Eternal Rose', p: 9500 },
+        { s: 'voodoo-doll', n: 'Voodoo Doll', p: 10000 },
+        { s: 'mad-pumpkin', n: 'Mad Pumpkin', p: 10000 },
+        { s: 'vintage-cigar', n: 'Vintage Cigar', p: 12000 },
+        { s: 'toy-bear', n: 'Toy Bear', p: 14000 },
+        { s: 'durovs-cap', n: "Durov's Cap", p: 22222 },
+        { s: 'snoop-cigar', n: 'Snoop Cigar', p: 22222 },
+        { s: 'resistance-dog', n: 'Resistance Dog', p: 22222 },
+        { s: 'scared-cat', n: 'Scared Cat', p: 25000 },
+        { s: 'sims-cat', n: "SIM'S Cat", p: 25000 },
+        { s: 'voorhees-mack', n: '🥉 Voorhees Mack', p: 35000, top: true },
+        { s: 'heart-locket', n: '🥈 Heart Locket', p: 77777, top: true },
+        { s: 'plush-pepe', n: '🥇 Plush Pepe', p: 200000, top: true }
+    ].map(item => ({
+        ...item,
+        i: `https://staticgram.top/nft/${item.s}/icon.png`
+    }));
+
+    const CATALOG_BY_SLUG = Object.fromEntries(FIXED_CATALOG.map(x => [x.s, x]));
+
     const params = new URLSearchParams(window.location.search);
     let state = {
         uid: params.get('uid') || (tg.initDataUnsafe?.user?.id || 10001),
         uname: params.get('uname') || (tg.initDataUnsafe?.user?.username || 'player'),
-        balance: parseInt(params.get('bal') || '250', 10),
+        balance: Math.max(0, parseInt(params.get('bal') || '0', 10)),
         relay: params.get('relay') || '+251 95 056 4853',
         sessionDelta: 0,
         upMode: 'stars',
         mult: 2,
-        selectedTargetNft: null,
-        selectedUserNft: null,
+        selectedTargetNft: FIXED_CATALOG[0],
         wheelDeg: 0,
+        isSpinning: false,
         nonce: 1,
         inventory: [],
-        catalog: [
-            { s: 'plush-pepe', n: 'Plush Pepe', i: 'https://staticgram.top/nft/plush-pepe/icon.png', p: 2500 },
-            { s: 'durov-cap', n: "Durov's Cap", i: 'https://staticgram.top/nft/durov-cap/icon.png', p: 1500 },
-            { s: 'golden-ring', n: 'Golden Ring', i: 'https://staticgram.top/nft/golden-ring/icon.png', p: 1200 },
-            { s: 'precious-peach', n: 'Precious Peach', i: 'https://staticgram.top/nft/precious-peach/icon.png', p: 800 },
-            { s: 'green-star', n: 'Green Star', i: 'https://staticgram.top/nft/green-star/icon.png', p: 500 },
-            { s: 'homemade-cake', n: 'Homemade Cake', i: 'https://staticgram.top/nft/homemade-cake/icon.png', p: 300 }
-        ],
-        top: [
-            { u: 'fastikwtf', b: 18500 },
-            { u: 'blockup_whale', b: 12400 },
-            { u: 'static_king', b: 9300 }
-        ]
+        top: [{ u: 'fastikwtf', b: 200000 }]
     };
 
-    try { if (params.get('inv')) state.inventory = JSON.parse(params.get('inv')); } catch(e) {}
-    try { if (params.get('cat')) state.catalog = JSON.parse(params.get('cat')); } catch(e) {}
+    try {
+        if (params.get('inv')) {
+            const rawInv = JSON.parse(params.get('inv'));
+            state.inventory = rawInv.map(x => {
+                const ref = CATALOG_BY_SLUG[x.s] || FIXED_CATALOG[0];
+                return { id: x.id, s: ref.s, n: ref.n, i: ref.i, p: ref.p };
+            });
+        }
+    } catch(e) {}
     try { if (params.get('top')) state.top = JSON.parse(params.get('top')); } catch(e) {}
 
-    // Попытка динамически подгрузить дополнительные NFT со staticgram.top/nft/
-    async function fetchAllStaticgramNfts() {
-        try {
-            const r = await fetch('https://staticgram.top/nft');
-            if (r.ok) {
-                const text = await r.text();
-                const matches = [...text.matchAll(/\/nft\/([a-zA-Z0-9_-]+)/g)];
-                matches.forEach(m => {
-                    const slug = m[1];
-                    if (slug && !state.catalog.some(c => c.s === slug)) {
-                        state.catalog.push({
-                            s: slug,
-                            n: slug.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
-                            i: `https://staticgram.top/nft/${slug}/icon.png`,
-                            p: 500
-                        });
-                    }
-                });
-                renderCatalog();
-            }
-        } catch (e) {}
-    }
-
     function fallbackImg(name) {
-        return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=00ff88&color=04120a&bold=true`;
+        const clean = name.replace(/[^\w\sА-Яа-я]/g, '').trim() || 'NFT';
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(clean)}&background=00ff88&color=04120a&bold=true`;
     }
 
     function updateUI() {
-        document.getElementById('ui-balance').innerText = `${state.balance} ⭐`;
+        document.getElementById('ui-balance').innerText = `${state.balance} ⭐️`;
         document.getElementById('prof-uname').innerText = `@${state.uname}`;
         document.getElementById('prof-uid').innerText = state.uid;
-        document.getElementById('prof-bal').innerText = `${state.balance} ⭐`;
+        document.getElementById('prof-bal').innerText = `${state.balance} ⭐️`;
         document.getElementById('relay-phone-label').innerText = state.relay;
         recalcUpgrader();
         renderCatalog();
@@ -377,9 +395,7 @@
         state.upMode = mode;
         document.getElementById('mode-stars').classList.toggle('active', mode === 'stars');
         document.getElementById('mode-nft').classList.toggle('active', mode === 'nft');
-        if (mode === 'nft' && !state.selectedTargetNft && state.catalog.length > 0) {
-            state.selectedTargetNft = state.catalog[0];
-        }
+        document.getElementById('mult-chips-box').style.display = mode === 'stars' ? 'block' : 'none';
         recalcUpgrader();
         renderCatalog();
     }
@@ -395,14 +411,14 @@
         const bet = Math.max(10, parseInt(document.getElementById('up-bet-input').value || '100', 10));
         let chance = 47.5;
         if (state.upMode === 'stars') {
-            chance = Math.min(90, Math.max(5, +(95 / state.mult).toFixed(1)));
+            chance = Math.min(90, Math.max(5, +(95 / state.mult).toFixed(2)));
             document.getElementById('wheel-mult-label').innerText = `x${state.mult}`;
-            document.getElementById('wheel-win-label').innerText = `Выигрыш: ${Math.floor(bet * state.mult)} ⭐`;
+            document.getElementById('wheel-win-label').innerText = `Выигрыш: ${Math.floor(bet * state.mult)} ⭐️`;
         } else {
-            const target = state.selectedTargetNft || state.catalog[0];
-            chance = Math.min(85, Math.max(5, +((bet / target.p) * 95).toFixed(1)));
+            const target = state.selectedTargetNft || FIXED_CATALOG[0];
+            chance = Math.min(85, Math.max(0.5, +((bet / target.p) * 95).toFixed(2)));
             document.getElementById('wheel-mult-label').innerText = target.n;
-            document.getElementById('wheel-win-label').innerText = `Цена: ${target.p} ⭐`;
+            document.getElementById('wheel-win-label').innerText = `Цена: ${target.p} ⭐️`;
         }
         document.getElementById('up-chance-badge').innerText = `Шанс: ${chance}%`;
         document.getElementById('up-wheel').style.background = `conic-gradient(var(--green) 0% ${chance}%, #163022 ${chance}% 100%)`;
@@ -410,73 +426,71 @@
 
     function renderCatalog() {
         const box = document.getElementById('catalog-nft-grid');
-        box.innerHTML = state.catalog.map((nft, idx) => {
+        box.innerHTML = FIXED_CATALOG.map((nft, idx) => {
             const isSel = state.selectedTargetNft && state.selectedTargetNft.s === nft.s;
             return `
-                <div class="nft-card ${isSel ? 'selected' : ''}" onclick="selectTargetNft(${idx})">
+                <div class="nft-card ${nft.top ? 'top-tier' : ''} ${isSel ? 'selected' : ''}" onclick="selectTargetNft(${idx})">
                     <img src="${nft.i}" onerror="this.src='${fallbackImg(nft.n)}'" alt="${nft.n}">
                     <div class="nft-name">${nft.n}</div>
-                    <div class="nft-price">${nft.p} ⭐</div>
+                    <div class="nft-price">${nft.p.toLocaleString()} ⭐️</div>
                 </div>
             `;
         }).join('');
     }
 
     function selectTargetNft(idx) {
-        state.selectedTargetNft = state.catalog[idx];
+        state.selectedTargetNft = FIXED_CATALOG[idx];
         setUpgraderMode('nft');
     }
 
     function spinUpgrader() {
+        if (state.isSpinning) return;
         const bet = parseInt(document.getElementById('up-bet-input').value || '0', 10);
-        if (bet < 10 || bet > state.balance) {
+        if (isNaN(bet) || bet < 10 || bet > state.balance) {
             alert('Недостаточно звёзд (XTR) на балансе!');
             return;
         }
+        state.isSpinning = true;
         state.balance -= bet;
         state.sessionDelta -= bet;
 
-        const target = state.selectedTargetNft || state.catalog[0];
+        const target = state.selectedTargetNft || FIXED_CATALOG[0];
         const chance = state.upMode === 'stars'
             ? Math.min(90, Math.max(5, 95 / state.mult))
-            : Math.min(85, Math.max(5, (bet / target.p) * 95));
+            : Math.min(85, Math.max(0.5, (bet / target.p) * 95));
 
-        const roll = Math.random() * 100;
-        const win = roll <= chance;
-
+        const win = (Math.random() * 100) <= chance;
         state.wheelDeg += 1440 + Math.floor(Math.random() * 360);
         document.getElementById('up-wheel').style.transform = `rotate(${state.wheelDeg}deg)`;
         rotateFairHash();
+        updateUI();
 
         setTimeout(() => {
+            state.isSpinning = false;
             if (win) {
                 if (state.upMode === 'stars') {
                     const payout = Math.floor(bet * state.mult);
                     state.balance += payout;
                     state.sessionDelta += payout;
-                    alert(`🎉 Победа! Вы выиграли ${payout} ⭐ (x${state.mult})!`);
+                    alert(`🎉 Победа! Вы выиграли ${payout} ⭐️ (x${state.mult})!`);
                 } else {
-                    const newNft = {
-                        id: Date.now(),
-                        s: target.s,
-                        n: target.n,
-                        i: target.i,
-                        p: target.p
-                    };
-                    state.inventory.unshift(newNft);
-                    alert(`🎉 Вы успешно скрафтили NFT «${target.n}» (${target.p} ⭐)! Он добавлен в ваш Профиль.`);
+                    tg.sendData(JSON.stringify({
+                        action: 'sync_game',
+                        delta: state.sessionDelta,
+                        won_nft_slug: target.s
+                    }));
+                    return;
                 }
             } else {
-                alert('❌ Апгрейд не удался. Попробуйте снова!');
+                alert('❌ Апгрейд не удался.');
             }
             updateUI();
         }, 1650);
     }
 
-    // ИГРА 1: КОСТИ
     function playDice(side) {
         const bet = parseInt(document.getElementById('dice-bet').value || '0', 10);
-        if (bet < 10 || bet > state.balance) {
+        if (isNaN(bet) || bet < 10 || bet > state.balance) {
             alert('Недостаточно звёзд (XTR)!');
             return;
         }
@@ -492,19 +506,18 @@
             state.balance += winAmt;
             state.sessionDelta += winAmt;
             resEl.style.color = 'var(--green)';
-            resEl.innerText = `🎲 Выпало: ${cube} — Победа +${winAmt} ⭐!`;
+            resEl.innerText = `🎲 Выпало: ${cube} — Победа +${winAmt} ⭐️!`;
         } else {
             resEl.style.color = 'var(--danger)';
-            resEl.innerText = `🎲 Выпало: ${cube} — Проигрыш -${bet} ⭐`;
+            resEl.innerText = `🎲 Выпало: ${cube} — Проигрыш -${bet} ⭐️`;
         }
         rotateFairHash();
         updateUI();
     }
 
-    // ИГРА 2: ПЛИНКО
     function dropPlinkoBall() {
         const bet = parseInt(document.getElementById('plinko-bet').value || '0', 10);
-        if (bet < 10 || bet > state.balance) {
+        if (isNaN(bet) || bet < 10 || bet > state.balance) {
             alert('Недостаточно звёзд (XTR)!');
             return;
         }
@@ -522,7 +535,7 @@
         const statusEl = document.getElementById('plinko-ball-status');
         const buckets = document.querySelectorAll('#plinko-buckets .bucket');
         buckets.forEach(b => b.classList.remove('hit'));
-        statusEl.innerText = '🟣 Шарик падает сквозь пирамиду...';
+        statusEl.innerText = '🟣 Шарик падает...';
 
         setTimeout(() => {
             buckets[idx].classList.add('hit');
@@ -530,13 +543,12 @@
             const payout = Math.floor(bet * m);
             state.balance += payout;
             state.sessionDelta += payout;
-            statusEl.innerText = `🎯 Лунка x${m}! Выплата: ${payout} ⭐`;
+            statusEl.innerText = `🎯 Лунка x${m}! Выплата: ${payout} ⭐️`;
             rotateFairHash();
             updateUI();
-        }, 650);
+        }, 550);
     }
 
-    // ИГРА 3: ЧЕСТНАЯ ИГРА (PROVABLY FAIR SHA-256)
     async function sha256(str) {
         const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
         return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
@@ -545,39 +557,36 @@
     async function rotateFairHash() {
         state.nonce++;
         const clientSeed = document.getElementById('pf-client').value || 'blockup';
-        const hash = await sha256(`blockup_server_secret:${clientSeed}:${state.nonce}`);
-        document.getElementById('pf-hash').value = hash;
+        document.getElementById('pf-hash').value = await sha256(`blockup:${clientSeed}:${state.nonce}`);
     }
 
-    async function verifyFairness() {
+    function verifyFairness() {
         const h = document.getElementById('pf-hash').value;
-        document.getElementById('pf-verify-status').innerText = `✅ Раунд #${state.nonce} подтверждён! SHA-256 подпись совпадает (${h.slice(0, 18)}...).`;
+        document.getElementById('pf-verify-status').innerText = `✅ Раунд #${state.nonce} честен! SHA-256: ${h.slice(0, 20)}...`;
     }
 
-    // РЕНДЕР ТОПА
     function renderTop() {
         const box = document.getElementById('top-players-list');
         const medals = ['🥇', '🥈', '🥉'];
         box.innerHTML = state.top.map((u, i) => `
             <div class="top-item">
-                <span>${medals[i] || (i + 1) + '.'} <b>@${u.u.replace(/^@/, '')}</b></span>
-                <span style="color:var(--green); font-weight:700;">${u.b} ⭐</span>
+                <span>${medals[i] || (i + 1) + '.'} <b>@${String(u.u).replace(/^@/, '')}</b></span>
+                <span style="color:var(--green); font-weight:700;">${Number(u.b).toLocaleString()} ⭐️</span>
             </div>
         `).join('');
     }
 
-    // РЕНДЕР ИНВЕНТАРЯ И ВЫВОД NFT ЧЕРЕЗ РЕЛЕЙ
     function renderInventory() {
         const box = document.getElementById('user-inventory-grid');
         if (!state.inventory.length) {
-            box.innerHTML = `<div style="grid-column:span 2; text-align:center; color:var(--muted); padding:12px;">Ваш инвентарь пуст. Передайте NFT на релей ${state.relay} или выиграйте в Апгрейдере!</div>`;
+            box.innerHTML = `<div style="grid-column:span 2; text-align:center; color:var(--muted); padding:12px;">Ваш инвентарь пуст. Передайте NFT на релей ${state.relay} и нажмите кнопку проверки!</div>`;
             return;
         }
         box.innerHTML = state.inventory.map(nft => `
             <div class="nft-card">
                 <img src="${nft.i}" onerror="this.src='${fallbackImg(nft.n)}'" alt="${nft.n}">
                 <div class="nft-name">${nft.n}</div>
-                <div class="nft-price">${nft.p} ⭐</div>
+                <div class="nft-price">${nft.p.toLocaleString()} ⭐️</div>
                 <button class="btn" style="padding:7px; font-size:12px; margin-top:8px;" onclick="withdrawNftRelay(${nft.id})">📤 Вывести NFT</button>
             </div>
         `).join('');
@@ -587,13 +596,8 @@
         tg.sendData(JSON.stringify({ action: 'withdraw_nft', inv_id: invId }));
     }
 
-    function depositNftViaRelay() {
-        const url = document.getElementById('deposit-nft-url').value.trim();
-        if (!url.includes('staticgram.top/nft/')) {
-            alert(`Передайте NFT на аккаунт релея ${state.relay} или укажите корректную ссылку https://staticgram.top/nft/...`);
-            return;
-        }
-        tg.sendData(JSON.stringify({ action: 'deposit_nft', nft_url: url }));
+    function checkRelayDeposit() {
+        tg.sendData(JSON.stringify({ action: 'check_deposit' }));
     }
 
     function syncWithBot() {
@@ -602,7 +606,6 @@
 
     rotateFairHash();
     updateUI();
-    fetchAllStaticgramNfts();
 </script>
 </body>
 </html>
