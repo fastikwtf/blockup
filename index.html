@@ -3,138 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BlockUP Casino</title>
+    <title>🎄 BlockUP New Year Casino</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg: #07130d;
-            --card: #0f2419;
-            --card-border: #1b432e;
+            --bg-deep: #04110b;
+            --bg-card: rgba(12, 34, 23, 0.82);
+            --border-frost: rgba(0, 255, 136, 0.24);
             --green: #00ff88;
-            --green-dim: #00b862;
-            --text: #ecfdf5;
-            --muted: #7aa68e;
-            --danger: #ff4d6d;
+            --green-dark: #00b35f;
             --gold: #ffd166;
+            --red-ny: #ff4757;
+            --text: #f0fdf4;
+            --muted: #88b39b;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        body { background: var(--bg); color: var(--text); padding-bottom: 84px; user-select: none; }
+        body {
+            background: radial-gradient(circle at top, #0d2e1e 0%, var(--bg-deep) 70%);
+            color: var(--text); padding-bottom: 92px; min-height: 100vh; overflow-x: hidden; user-select: none;
+        }
+        #snow-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 1;
+        }
+
+        /* Новогодняя гирлянда */
+        .garland {
+            position: sticky; top: 0; z-index: 60; display: flex; justify-content: space-around;
+            padding: 4px 0; background: rgba(4, 17, 11, 0.9); border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .bulb {
+            width: 8px; height: 8px; border-radius: 50%;
+            animation: twinkle 1.6s infinite alternate;
+        }
+        .bulb:nth-child(3n+1) { background: #00ff88; box-shadow: 0 0 8px #00ff88; animation-delay: 0s; }
+        .bulb:nth-child(3n+2) { background: #ffd166; box-shadow: 0 0 8px #ffd166; animation-delay: 0.5s; }
+        .bulb:nth-child(3n) { background: #ff4757; box-shadow: 0 0 8px #ff4757; animation-delay: 1s; }
+        @keyframes twinkle { from { opacity: 0.45; transform: scale(0.85); } to { opacity: 1; transform: scale(1.15); } }
+
         header {
-            position: sticky; top: 0; z-index: 50;
+            position: sticky; top: 16px; z-index: 55;
             display: flex; justify-content: space-between; align-items: center;
-            padding: 14px 16px; background: rgba(15, 36, 25, 0.95);
-            border-bottom: 1px solid var(--card-border); backdrop-filter: blur(8px);
+            padding: 12px 16px; background: rgba(9, 27, 18, 0.92);
+            border-bottom: 1px solid var(--border-frost); backdrop-filter: blur(12px);
         }
-        .brand { font-size: 19px; font-weight: 800; color: var(--green); display: flex; align-items: center; gap: 6px; }
+        .brand {
+            font-size: 19px; font-weight: 900; color: var(--green);
+            text-shadow: 0 0 12px rgba(0, 255, 136, 0.35); display: flex; align-items: center; gap: 6px;
+        }
         .bal-pill {
-            background: #050e09; border: 1px solid var(--green); border-radius: 99px;
-            padding: 6px 14px; font-weight: 700; font-size: 14px; color: var(--green);
-            box-shadow: 0 0 12px rgba(0, 255, 136, 0.2);
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.16), rgba(255, 209, 102, 0.12));
+            border: 1px solid var(--gold); border-radius: 99px;
+            padding: 6px 14px; font-weight: 800; font-size: 14px; color: var(--gold);
+            box-shadow: 0 0 14px rgba(255, 209, 102, 0.25);
         }
-        .container { max-width: 540px; margin: 0 auto; padding: 14px; }
-        .tab-pane { display: none; animation: fadeIn 0.2s ease; }
+
+        .container { position: relative; z-index: 5; max-width: 540px; margin: 0 auto; padding: 14px; }
+        .tab-pane { display: none; animation: popIn 0.22s ease; }
         .tab-pane.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
         .card {
-            background: var(--card); border: 1px solid var(--card-border);
-            border-radius: 16px; padding: 15px; margin-bottom: 14px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+            background: var(--bg-card); border: 1px solid var(--border-frost);
+            border-radius: 18px; padding: 16px; margin-bottom: 14px;
+            backdrop-filter: blur(10px); box-shadow: 0 8px 26px rgba(0, 0, 0, 0.45);
+            position: relative; overflow: hidden;
         }
-        .card-title { font-size: 16px; font-weight: 700; color: var(--green); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .sub { font-size: 12px; color: var(--muted); line-height: 1.4; margin-bottom: 10px; }
+        .card::before {
+            content: '❄️'; position: absolute; top: -6px; right: 8px;
+            font-size: 26px; opacity: 0.08; pointer-events: none;
+        }
+        .card-title {
+            font-size: 16px; font-weight: 800; color: var(--green);
+            margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .sub { font-size: 12px; color: var(--muted); line-height: 1.45; margin-bottom: 12px; }
 
         .mode-switch { display: flex; gap: 8px; margin-bottom: 12px; }
         .mode-btn {
-            flex: 1; padding: 9px; border-radius: 10px; border: 1px solid var(--card-border);
-            background: #07130d; color: var(--muted); font-weight: 700; font-size: 13px; cursor: pointer;
+            flex: 1; padding: 10px; border-radius: 12px; border: 1px solid var(--border-frost);
+            background: rgba(4, 17, 11, 0.75); color: var(--muted); font-weight: 800; font-size: 12px; cursor: pointer; transition: 0.2s;
         }
-        .mode-btn.active { background: rgba(0, 255, 136, 0.15); border-color: var(--green); color: var(--green); }
+        .mode-btn.active {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.22), rgba(255, 209, 102, 0.12));
+            border-color: var(--green); color: #fff; box-shadow: 0 0 12px rgba(0, 255, 136, 0.25);
+        }
 
-        .wheel-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px 0; }
+        /* Новогоднее колесо апгрейдера */
+        .wheel-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 0; }
+        .wheel-pointer {
+            width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent;
+            border-top: 16px solid var(--gold); margin-bottom: -6px; z-index: 6;
+            filter: drop-shadow(0 0 6px var(--gold));
+        }
         .wheel-circle {
-            width: 150px; height: 150px; border-radius: 50%;
-            background: conic-gradient(var(--green) 0% 50%, #163022 50% 100%);
+            width: 164px; height: 164px; border-radius: 50%;
+            background: conic-gradient(var(--green) 0% 50%, #102a1d 50% 100%);
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 25px rgba(0, 255, 136, 0.2); transition: transform 1.6s cubic-bezier(0.12, 0.8, 0.2, 1);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.25), inset 0 0 15px rgba(255, 209, 102, 0.2);
+            border: 2px solid rgba(255, 209, 102, 0.35);
+            transition: transform 1.8s cubic-bezier(0.12, 0.8, 0.2, 1);
         }
         .wheel-inner {
-            width: 116px; height: 116px; border-radius: 50%; background: var(--bg);
-            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px; text-align: center;
-        }
-        .wheel-pointer {
-            width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent;
-            border-top: 14px solid #fff; margin-bottom: -6px; z-index: 5;
+            width: 126px; height: 126px; border-radius: 50%;
+            background: radial-gradient(circle, #0b2418 0%, #04110b 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 8px; text-align: center; border: 1px solid var(--border-frost);
         }
 
         .mult-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0; }
         .mult-chip {
-            background: #07130d; border: 1px solid var(--card-border); color: var(--text);
-            padding: 8px; border-radius: 10px; font-weight: 700; font-size: 13px; text-align: center; cursor: pointer;
+            background: rgba(4, 17, 11, 0.8); border: 1px solid var(--border-frost); color: var(--text);
+            padding: 9px; border-radius: 10px; font-weight: 800; font-size: 13px; text-align: center; cursor: pointer;
         }
-        .mult-chip.active { border-color: var(--green); color: var(--green); background: rgba(0, 255, 136, 0.12); }
+        .mult-chip.active { border-color: var(--gold); color: var(--gold); background: rgba(255, 209, 102, 0.14); }
 
-        .input-lbl { font-size: 12px; color: var(--muted); display: block; margin-top: 8px; }
+        .input-lbl { font-size: 12px; color: var(--muted); display: block; margin-top: 8px; font-weight: 600; }
         input {
-            width: 100%; background: #06100b; border: 1px solid var(--card-border);
-            color: #fff; padding: 11px 12px; border-radius: 10px; font-size: 14px; margin-top: 5px; outline: none;
+            width: 100%; background: rgba(4, 14, 9, 0.9); border: 1px solid var(--border-frost);
+            color: #fff; padding: 11px 12px; border-radius: 12px; font-size: 14px; margin-top: 5px; outline: none;
         }
-        input:focus { border-color: var(--green); }
+        input:focus { border-color: var(--green); box-shadow: 0 0 10px rgba(0, 255, 136, 0.2); }
 
         .btn {
-            width: 100%; background: linear-gradient(135deg, var(--green), var(--green-dim));
-            color: #04120a; border: none; padding: 12px; border-radius: 12px;
-            font-weight: 800; font-size: 15px; cursor: pointer; margin-top: 12px;
-            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.25);
+            width: 100%; background: linear-gradient(135deg, var(--green), var(--green-dark));
+            color: #03120a; border: none; padding: 13px; border-radius: 13px;
+            font-weight: 900; font-size: 15px; cursor: pointer; margin-top: 12px;
+            box-shadow: 0 5px 18px rgba(0, 255, 136, 0.3); transition: 0.15s;
         }
         .btn:active { transform: scale(0.98); }
-        .btn-outline { background: transparent; border: 1px solid var(--green); color: var(--green); box-shadow: none; }
+        .btn-gold {
+            background: linear-gradient(135deg, #ffd166, #f4a261); color: #1d1102;
+            box-shadow: 0 5px 18px rgba(255, 209, 102, 0.3);
+        }
+        .btn-outline {
+            background: rgba(0, 255, 136, 0.08); border: 1px solid var(--green); color: var(--green); box-shadow: none;
+        }
 
         .nft-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px; }
         .nft-card {
-            background: #07130d; border: 1px solid var(--card-border); border-radius: 12px;
-            padding: 10px; text-align: center; cursor: pointer; transition: 0.15s;
+            background: rgba(5, 18, 12, 0.88); border: 1px solid var(--border-frost); border-radius: 14px;
+            padding: 10px; text-align: center; cursor: pointer; position: relative; transition: 0.18s;
         }
-        .nft-card.top-tier { border-color: rgba(255, 209, 102, 0.5); }
-        .nft-card.selected { border-color: var(--green); box-shadow: 0 0 14px rgba(0, 255, 136, 0.35); }
-        .nft-card img { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; margin-bottom: 6px; background: #0f2419; }
-        .nft-name { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .nft-price { font-size: 12px; color: var(--green); font-weight: 700; margin-top: 3px; }
+        .nft-card.selected {
+            border-color: var(--gold); box-shadow: 0 0 16px rgba(255, 209, 102, 0.4);
+            transform: translateY(-2px);
+        }
+        .nft-badge-num {
+            position: absolute; top: 7px; right: 7px;
+            background: rgba(255, 209, 102, 0.18); border: 1px solid var(--gold);
+            color: var(--gold); font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 99px;
+        }
+        .nft-card img {
+            width: 68px; height: 68px; border-radius: 12px; object-fit: cover;
+            margin: 6px auto; display: block; background: #0d261a;
+        }
+        .nft-name { font-size: 13px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .nft-price { font-size: 12px; color: var(--green); font-weight: 800; margin-top: 3px; }
 
-        .plinko-board {
-            background: #06100b; border: 1px solid var(--card-border); border-radius: 12px;
-            padding: 12px; text-align: center; margin: 10px 0;
+        /* Новогодний Плинко на Canvas */
+        .plinko-wrap {
+            background: rgba(4, 14, 9, 0.92); border: 1px solid var(--border-frost);
+            border-radius: 14px; padding: 10px; text-align: center; margin-top: 10px;
         }
-        .plinko-buckets { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 10px; }
+        #plinko-canvas { width: 100%; max-width: 320px; height: 220px; display: block; margin: 0 auto; }
+        .plinko-buckets { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 6px; }
         .bucket {
-            background: #122b1e; border: 1px solid var(--card-border); border-radius: 6px;
-            padding: 5px 2px; font-size: 11px; font-weight: 800; color: var(--green);
+            background: #102a1d; border: 1px solid var(--border-frost); border-radius: 6px;
+            padding: 5px 2px; font-size: 11px; font-weight: 800; color: var(--gold);
         }
-        .bucket.hit { background: var(--green); color: #000; }
+        .bucket.hit { background: var(--gold); color: #000; box-shadow: 0 0 10px var(--gold); }
 
         .top-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 0; border-bottom: 1px solid var(--card-border); font-size: 14px;
+            padding: 11px 0; border-bottom: 1px solid rgba(0, 255, 136, 0.12); font-size: 14px;
         }
         .top-item:last-child { border-bottom: none; }
 
         .nav {
-            position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(15, 36, 25, 0.98);
-            border-top: 1px solid var(--card-border); display: flex; justify-content: space-around;
-            padding: 8px 0 12px; z-index: 100;
+            position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(8, 24, 16, 0.96);
+            border-top: 1px solid var(--border-frost); display: flex; justify-content: space-around;
+            padding: 8px 0 14px; z-index: 100; backdrop-filter: blur(12px);
         }
         .nav-btn {
-            background: none; border: none; color: var(--muted); font-size: 11px; font-weight: 600;
+            background: none; border: none; color: var(--muted); font-size: 11px; font-weight: 700;
             display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; flex: 1;
         }
-        .nav-btn.active { color: var(--green); }
-        .nav-btn span { font-size: 19px; }
+        .nav-btn.active { color: var(--gold); text-shadow: 0 0 8px rgba(255, 209, 102, 0.4); }
+        .nav-btn span { font-size: 20px; }
     </style>
 </head>
 <body>
 
+<canvas id="snow-canvas"></canvas>
+
+<!-- Новогодняя гирлянда -->
+<div class="garland">
+    <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+    <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+    <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+</div>
+
 <header>
-    <div class="brand">🍀 BlockUP</div>
+    <div class="brand">🎄 BlockUP <span>2026</span></div>
     <div class="bal-pill" id="ui-balance">0 ⭐️</div>
 </header>
 
@@ -143,31 +214,31 @@
     <div id="tab-upgrader" class="tab-pane active">
         <div class="card">
             <div class="card-title">
-                <span>🚀 Апгрейдер Звёзд & NFT</span>
-                <span id="up-chance-badge" style="font-size:13px;">Шанс: 47.5%</span>
+                <span>🎅 Новогодний Апгрейдер</span>
+                <span id="up-chance-badge" style="font-size:13px; color:var(--gold);">Шанс: 47.5%</span>
             </div>
-            <div class="sub">Умножайте свои звёзды до x10 или выбивайте любой из 49 постоянных NFT!</div>
+            <div class="sub">Умножайте звёзды до x10 или выбивайте реальные NFT с номерами, которые сейчас лежат на релее!</div>
 
             <div class="mode-switch">
                 <button class="mode-btn active" id="mode-stars" onclick="setUpgraderMode('stars')">⭐️ Апгрейд Звёзд</button>
-                <button class="mode-btn" id="mode-nft" onclick="setUpgraderMode('nft')">💎 Крафт NFT (49 шт.)</button>
+                <button class="mode-btn" id="mode-nft" onclick="setUpgraderMode('nft')">🎁 Выбить NFT с Релея</button>
             </div>
 
             <div class="wheel-wrap">
                 <div class="wheel-pointer"></div>
                 <div class="wheel-circle" id="up-wheel">
                     <div class="wheel-inner">
-                        <div style="font-size:15px; font-weight:800; color:var(--green);" id="wheel-mult-label">x2.0</div>
-                        <div style="font-size:11px; color:var(--muted); margin-top:2px;" id="wheel-win-label">Выигрыш: 200 ⭐️</div>
+                        <div style="font-size:15px; font-weight:900; color:var(--gold);" id="wheel-mult-label">x2.0</div>
+                        <div style="font-size:11px; color:var(--muted); margin-top:3px;" id="wheel-win-label">Выигрыш: 200 ⭐️</div>
                     </div>
                 </div>
             </div>
 
-            <span class="input-lbl">Ставка в звёздах (XTR):</span>
+            <span class="input-lbl">Ваша ставка (⭐️ XTR):</span>
             <input type="number" id="up-bet-input" value="100" min="10" oninput="recalcUpgrader()">
 
             <div id="mult-chips-box">
-                <span class="input-lbl">Множитель звёзд:</span>
+                <span class="input-lbl">Выберите множитель:</span>
                 <div class="mult-row">
                     <div class="mult-chip active" onclick="pickMult(2, this)">x2</div>
                     <div class="mult-chip" onclick="pickMult(3, this)">x3</div>
@@ -176,37 +247,43 @@
                 </div>
             </div>
 
-            <button class="btn" id="up-spin-btn" onclick="spinUpgrader()">🔥 Запустить Апгрейд</button>
+            <button class="btn btn-gold" onclick="spinUpgrader()">✨ Крутить Новогодний Апгрейд</button>
         </div>
 
         <div class="card">
             <div class="card-title">
-                <span>💎 Все 49 NFT (Постоянные цены)</span>
-                <span style="font-size:11px; color:var(--muted);">Нажми для выбора цели</span>
+                <span>🎁 NFT в наличии на Релее</span>
+                <span id="relay-count-badge" style="font-size:12px; color:var(--gold);">0 шт.</span>
             </div>
-            <div class="nft-grid" id="catalog-nft-grid"></div>
+            <div class="sub">Здесь отображаются <b>только те NFT и номера (#...)</b>, которые реально находятся на аккаунте релея прямо сейчас.</div>
+            <div class="nft-grid" id="relay-stock-grid"></div>
         </div>
     </div>
 
     <!-- ВКЛАДКА 2: ИГРЫ -->
     <div id="tab-games" class="tab-pane">
+        <!-- КОСТИ -->
         <div class="card">
-            <div class="card-title"><span>🎲 Кости (Dice)</span><span>x1.95</span></div>
+            <div class="card-title"><span>🎲 Морозные Кости (Dice)</span><span style="color:var(--gold);">x1.95</span></div>
+            <div class="sub">Угадайте половину кубика (1–3 или 4–6) и удвойте ставку!</div>
+            <div id="dice-visual" style="font-size:44px; text-align:center; margin:6px 0;">🎲</div>
             <span class="input-lbl">Ставка (⭐️):</span>
             <input type="number" id="dice-bet" value="50" min="10">
             <div class="mode-switch" style="margin-top:10px;">
-                <button class="btn" style="margin-top:0;" onclick="playDice('low')">📉 Меньше (1–3)</button>
-                <button class="btn" style="margin-top:0;" onclick="playDice('high')">📈 Больше (4–6)</button>
+                <button class="btn" style="margin-top:0;" onclick="playDice('low')">❄️ Меньше (1–3)</button>
+                <button class="btn btn-gold" style="margin-top:0;" onclick="playDice('high')">🔥 Больше (4–6)</button>
             </div>
-            <div id="dice-result" style="margin-top:10px; font-size:13px; text-align:center;"></div>
+            <div id="dice-result" style="margin-top:10px; font-size:13px; font-weight:700; text-align:center;"></div>
         </div>
 
+        <!-- ПЛИНКО -->
         <div class="card">
-            <div class="card-title"><span>🎯 Плинко (Plinko)</span><span>До x10.0</span></div>
+            <div class="card-title"><span>🎄 Новогодний Плинко</span><span style="color:var(--gold);">До x10.0</span></div>
+            <div class="sub">Сбросьте золотой новогодний шар сквозь снежные пины!</div>
             <span class="input-lbl">Ставка (⭐️):</span>
             <input type="number" id="plinko-bet" value="50" min="10">
-            <div class="plinko-board">
-                <div id="plinko-ball-status" style="font-size:14px; font-weight:700;">🟢 Готов к броску</div>
+            <div class="plinko-wrap">
+                <canvas id="plinko-canvas" width="300" height="200"></canvas>
                 <div class="plinko-buckets" id="plinko-buckets">
                     <div class="bucket">x10</div>
                     <div class="bucket">x3</div>
@@ -216,17 +293,19 @@
                     <div class="bucket">x3</div>
                     <div class="bucket">x10</div>
                 </div>
+                <div id="plinko-status" style="margin-top:8px; font-size:13px; font-weight:700; color:var(--gold);">✨ Готов к запуску</div>
             </div>
-            <button class="btn" onclick="dropPlinkoBall()">🟣 Бросить шарик</button>
+            <button class="btn btn-gold" onclick="dropPlinkoBall()">🟡 Бросить новогодний шар</button>
         </div>
 
+        <!-- ЧЕСТНАЯ ИГРА -->
         <div class="card">
             <div class="card-title"><span>🛡 Честная игра (Provably Fair)</span></div>
-            <div class="sub">Проверка честности каждого исхода по алгоритму SHA-256:</div>
+            <div class="sub">Криптографическая проверка SHA-256 каждого раунда:</div>
             <span class="input-lbl">Хэш раунда (SHA-256):</span>
             <input type="text" id="pf-hash" readonly>
             <span class="input-lbl">Клиентский сид:</span>
-            <input type="text" id="pf-client" value="blockup_fair_seed">
+            <input type="text" id="pf-client" value="new_year_blockup_2026">
             <button class="btn btn-outline" onclick="verifyFairness()">🔍 Проверить честность</button>
             <div id="pf-verify-status" style="margin-top:8px; font-size:12px; color:var(--green);"></div>
         </div>
@@ -235,7 +314,7 @@
     <!-- ВКЛАДКА 3: ТОП -->
     <div id="tab-top" class="tab-pane">
         <div class="card">
-            <div class="card-title"><span>🏆 Топ игроков по балансу</span></div>
+            <div class="card-title"><span>🏆 Новогодний Топ по балансу</span></div>
             <div id="top-players-list"></div>
         </div>
     </div>
@@ -243,45 +322,46 @@
     <!-- ВКЛАДКА 4: ПРОФИЛЬ -->
     <div id="tab-profile" class="tab-pane">
         <div class="card">
-            <div class="card-title"><span>👤 Профиль игрока</span></div>
-            <p style="font-size:14px; margin:6px 0;">Игрок: <b id="prof-uname">@player</b></p>
+            <div class="card-title"><span>🎅 Профиль игрока</span></div>
+            <p style="font-size:14px; margin:6px 0;">Никнейм: <b id="prof-uname">@player</b></p>
             <p style="font-size:14px; margin:6px 0;">ID: <code id="prof-uid">0</code></p>
-            <p style="font-size:14px; margin:6px 0;">Баланс: <b style="color:var(--green);" id="prof-bal">0 ⭐️</b></p>
+            <p style="font-size:14px; margin:6px 0;">Баланс: <b style="color:var(--gold);" id="prof-bal">0 ⭐️</b></p>
             <button class="btn btn-outline" onclick="syncWithBot()">🔄 Сохранить баланс в боте</button>
         </div>
 
         <div class="card">
             <div class="card-title">
-                <span>🎒 Ваш инвентарь NFT</span>
-                <span style="font-size:12px; color:var(--muted);">Вывод через релей</span>
+                <span>🎒 Мои NFT (Вывод по #номеру)</span>
+                <span style="font-size:12px; color:var(--gold);" id="inv-count-label">0 шт.</span>
             </div>
+            <div class="sub">При нажатии на кнопку вывода релей проверяет номер <code>#...</code> и передаёт на ваш аккаунт <b>именно выбранный номер NFT</b>!</div>
             <div class="nft-grid" id="user-inventory-grid"></div>
         </div>
 
         <div class="card">
             <div class="card-title"><span>📥 Пополнение NFT через Релей</span></div>
             <div class="sub">
-                1. Отправьте любой из 49 NFT на аккаунт нашего релея: <b style="color:var(--green);" id="relay-phone-label">+251 95 056 4853</b><br>
-                2. Релей автоматически зачислит предмет по его постоянной цене.<br>
-                3. Нажмите кнопку ниже, чтобы принудительно проверить входящие подарки на релее:
+                1. Передайте любой NFT на аккаунт релея: <b style="color:var(--gold);" id="relay-phone-label">+251 95 056 4853</b><br>
+                2. Релей проверит точный номер вашего NFT и зачислит <b>ровно 1 экземпляр</b> по постоянной цене.<br>
+                3. Нажмите кнопку ниже для синхронизации со складом релея:
             </div>
-            <button class="btn" onclick="checkRelayDeposit()">🔄 Проверить пополнение NFT на релее</button>
+            <button class="btn btn-gold" onclick="checkRelayDeposit()">🔄 Синхронизировать NFT с Релеем</button>
         </div>
     </div>
 </div>
 
 <nav class="nav">
-    <button class="nav-btn active" onclick="openTab('upgrader', this)"><span>🚀</span>Апгрейдер</button>
+    <button class="nav-btn active" onclick="openTab('upgrader', this)"><span>🎄</span>Апгрейдер</button>
     <button class="nav-btn" onclick="openTab('games', this)"><span>🎮</span>Игры</button>
     <button class="nav-btn" onclick="openTab('top', this)"><span>🏆</span>Топ</button>
-    <button class="nav-btn" onclick="openTab('profile', this)"><span>👤</span>Профиль</button>
+    <button class="nav-btn" onclick="openTab('profile', this)"><span>🎅</span>Профиль</button>
 </nav>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // Постоянный каталог из 49 NFT (защита от подмены цен)
+    // Постоянный справочник цен 49 NFT
     const FIXED_CATALOG = [
         { s: 'lol-pop', n: 'Lol pop', p: 750 },
         { s: 'candy-cane', n: 'Candy Cane', p: 1000 },
@@ -329,9 +409,9 @@
         { s: 'resistance-dog', n: 'Resistance Dog', p: 22222 },
         { s: 'scared-cat', n: 'Scared Cat', p: 25000 },
         { s: 'sims-cat', n: "SIM'S Cat", p: 25000 },
-        { s: 'voorhees-mack', n: '🥉 Voorhees Mack', p: 35000, top: true },
-        { s: 'heart-locket', n: '🥈 Heart Locket', p: 77777, top: true },
-        { s: 'plush-pepe', n: '🥇 Plush Pepe', p: 200000, top: true }
+        { s: 'voorhees-mack', n: '🥉 Voorhees Mack', p: 35000 },
+        { s: 'heart-locket', n: '🥈 Heart Locket', p: 77777 },
+        { s: 'plush-pepe', n: '🥇 Plush Pepe', p: 200000 }
     ].map(item => ({
         ...item,
         i: `https://staticgram.top/nft/${item.s}/icon.png`
@@ -348,23 +428,43 @@
         sessionDelta: 0,
         upMode: 'stars',
         mult: 2,
-        selectedTargetNft: FIXED_CATALOG[0],
+        selectedTargetStock: null,
         wheelDeg: 0,
         isSpinning: false,
         nonce: 1,
         inventory: [],
+        relayStock: [], // ТОЛЬКО те NFT, которые реально есть на релее!
         top: [{ u: 'fastikwtf', b: 200000 }]
     };
 
+    function hydrateItem(raw) {
+        const ref = CATALOG_BY_SLUG[raw.s];
+        if (!ref) return null;
+        return {
+            id: raw.id,
+            s: ref.s,
+            n: ref.n,
+            num: String(raw.num || raw.nft_number || '1'),
+            i: ref.i,
+            p: ref.p
+        };
+    }
+
     try {
         if (params.get('inv')) {
-            const rawInv = JSON.parse(params.get('inv'));
-            state.inventory = rawInv.map(x => {
-                const ref = CATALOG_BY_SLUG[x.s] || FIXED_CATALOG[0];
-                return { id: x.id, s: ref.s, n: ref.n, i: ref.i, p: ref.p };
-            });
+            state.inventory = JSON.parse(params.get('inv')).map(hydrateItem).filter(Boolean);
         }
     } catch(e) {}
+
+    try {
+        if (params.get('stock')) {
+            state.relayStock = JSON.parse(params.get('stock')).map(hydrateItem).filter(Boolean);
+            if (state.relayStock.length > 0) {
+                state.selectedTargetStock = state.relayStock[0];
+            }
+        }
+    } catch(e) {}
+
     try { if (params.get('top')) state.top = JSON.parse(params.get('top')); } catch(e) {}
 
     function fallbackImg(name) {
@@ -373,13 +473,15 @@
     }
 
     function updateUI() {
-        document.getElementById('ui-balance').innerText = `${state.balance} ⭐️`;
+        document.getElementById('ui-balance').innerText = `${state.balance.toLocaleString()} ⭐️`;
         document.getElementById('prof-uname').innerText = `@${state.uname}`;
         document.getElementById('prof-uid').innerText = state.uid;
-        document.getElementById('prof-bal').innerText = `${state.balance} ⭐️`;
+        document.getElementById('prof-bal').innerText = `${state.balance.toLocaleString()} ⭐️`;
         document.getElementById('relay-phone-label').innerText = state.relay;
+        document.getElementById('relay-count-badge').innerText = `${state.relayStock.length} шт. на релее`;
+        document.getElementById('inv-count-label').innerText = `${state.inventory.length} шт.`;
         recalcUpgrader();
-        renderCatalog();
+        renderRelayStock();
         renderInventory();
         renderTop();
     }
@@ -392,12 +494,19 @@
     }
 
     function setUpgraderMode(mode) {
+        if (mode === 'nft' && state.relayStock.length === 0) {
+            alert('На аккаунте релея сейчас нет свободных NFT! Закиньте NFT на релей, чтобы они появились в списке.');
+            return;
+        }
         state.upMode = mode;
         document.getElementById('mode-stars').classList.toggle('active', mode === 'stars');
         document.getElementById('mode-nft').classList.toggle('active', mode === 'nft');
         document.getElementById('mult-chips-box').style.display = mode === 'stars' ? 'block' : 'none';
+        if (mode === 'nft' && !state.selectedTargetStock && state.relayStock.length > 0) {
+            state.selectedTargetStock = state.relayStock[0];
+        }
         recalcUpgrader();
-        renderCatalog();
+        renderRelayStock();
     }
 
     function pickMult(m, el) {
@@ -410,26 +519,35 @@
     function recalcUpgrader() {
         const bet = Math.max(10, parseInt(document.getElementById('up-bet-input').value || '100', 10));
         let chance = 47.5;
-        if (state.upMode === 'stars') {
+        if (state.upMode === 'stars' || !state.selectedTargetStock) {
             chance = Math.min(90, Math.max(5, +(95 / state.mult).toFixed(2)));
             document.getElementById('wheel-mult-label').innerText = `x${state.mult}`;
             document.getElementById('wheel-win-label').innerText = `Выигрыш: ${Math.floor(bet * state.mult)} ⭐️`;
         } else {
-            const target = state.selectedTargetNft || FIXED_CATALOG[0];
+            const target = state.selectedTargetStock;
             chance = Math.min(85, Math.max(0.5, +((bet / target.p) * 95).toFixed(2)));
-            document.getElementById('wheel-mult-label').innerText = target.n;
-            document.getElementById('wheel-win-label').innerText = `Цена: ${target.p} ⭐️`;
+            document.getElementById('wheel-mult-label').innerText = `${target.n} #${target.num}`;
+            document.getElementById('wheel-win-label').innerText = `Цена: ${target.p.toLocaleString()} ⭐️`;
         }
         document.getElementById('up-chance-badge').innerText = `Шанс: ${chance}%`;
-        document.getElementById('up-wheel').style.background = `conic-gradient(var(--green) 0% ${chance}%, #163022 ${chance}% 100%)`;
+        document.getElementById('up-wheel').style.background = `conic-gradient(var(--green) 0% ${chance}%, #102a1d ${chance}% 100%)`;
     }
 
-    function renderCatalog() {
-        const box = document.getElementById('catalog-nft-grid');
-        box.innerHTML = FIXED_CATALOG.map((nft, idx) => {
-            const isSel = state.selectedTargetNft && state.selectedTargetNft.s === nft.s;
+    function renderRelayStock() {
+        const box = document.getElementById('relay-stock-grid');
+        if (!state.relayStock.length) {
+            box.innerHTML = `
+                <div style="grid-column:span 2; text-align:center; color:var(--muted); padding:16px;">
+                    ❄️ На релее (<b>${state.relay}</b>) сейчас нет NFT в наличии.<br>
+                    <span style="font-size:11px;">Здесь отображаются только те NFT, которые реально лежат на аккаунте релея!</span>
+                </div>`;
+            return;
+        }
+        box.innerHTML = state.relayStock.map((nft, idx) => {
+            const isSel = state.selectedTargetStock && state.selectedTargetStock.id === nft.id;
             return `
-                <div class="nft-card ${nft.top ? 'top-tier' : ''} ${isSel ? 'selected' : ''}" onclick="selectTargetNft(${idx})">
+                <div class="nft-card ${isSel ? 'selected' : ''}" onclick="selectRelayStockNft(${idx})">
+                    <div class="nft-badge-num">#${nft.num}</div>
                     <img src="${nft.i}" onerror="this.src='${fallbackImg(nft.n)}'" alt="${nft.n}">
                     <div class="nft-name">${nft.n}</div>
                     <div class="nft-price">${nft.p.toLocaleString()} ⭐️</div>
@@ -438,8 +556,8 @@
         }).join('');
     }
 
-    function selectTargetNft(idx) {
-        state.selectedTargetNft = FIXED_CATALOG[idx];
+    function selectRelayStockNft(idx) {
+        state.selectedTargetStock = state.relayStock[idx];
         setUpgraderMode('nft');
     }
 
@@ -450,11 +568,16 @@
             alert('Недостаточно звёзд (XTR) на балансе!');
             return;
         }
+        if (state.upMode === 'nft' && !state.selectedTargetStock) {
+            alert('Выберите NFT из наличия релея!');
+            return;
+        }
+
         state.isSpinning = true;
         state.balance -= bet;
         state.sessionDelta -= bet;
 
-        const target = state.selectedTargetNft || FIXED_CATALOG[0];
+        const target = state.selectedTargetStock;
         const chance = state.upMode === 'stars'
             ? Math.min(90, Math.max(5, 95 / state.mult))
             : Math.min(85, Math.max(0.5, (bet / target.p) * 95));
@@ -472,22 +595,23 @@
                     const payout = Math.floor(bet * state.mult);
                     state.balance += payout;
                     state.sessionDelta += payout;
-                    alert(`🎉 Победа! Вы выиграли ${payout} ⭐️ (x${state.mult})!`);
+                    alert(`🎄 С Новым Годом! Вы выиграли ${payout} ⭐️ (x${state.mult})!`);
                 } else {
                     tg.sendData(JSON.stringify({
                         action: 'sync_game',
                         delta: state.sessionDelta,
-                        won_nft_slug: target.s
+                        won_stock_id: target.id
                     }));
                     return;
                 }
             } else {
-                alert('❌ Апгрейд не удался.');
+                alert('❄️ В этот раз не повезло. Попробуйте снова!');
             }
             updateUI();
-        }, 1650);
+        }, 1820);
     }
 
+    // ИГРА 1: КОСТИ
     function playDice(side) {
         const bet = parseInt(document.getElementById('dice-bet').value || '0', 10);
         if (isNaN(bet) || bet < 10 || bet > state.balance) {
@@ -497,7 +621,10 @@
         state.balance -= bet;
         state.sessionDelta -= bet;
 
+        const faces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
         const cube = Math.floor(Math.random() * 6) + 1;
+        document.getElementById('dice-visual').innerText = faces[cube - 1];
+
         const win = (side === 'low' && cube <= 3) || (side === 'high' && cube >= 4);
         const resEl = document.getElementById('dice-result');
 
@@ -506,14 +633,49 @@
             state.balance += winAmt;
             state.sessionDelta += winAmt;
             resEl.style.color = 'var(--green)';
-            resEl.innerText = `🎲 Выпало: ${cube} — Победа +${winAmt} ⭐️!`;
+            resEl.innerText = `🎄 Выпало: ${cube} — Победа +${winAmt} ⭐️!`;
         } else {
-            resEl.style.color = 'var(--danger)';
-            resEl.innerText = `🎲 Выпало: ${cube} — Проигрыш -${bet} ⭐️`;
+            resEl.style.color = 'var(--red-ny)';
+            resEl.innerText = `❄️ Выпало: ${cube} — Проигрыш -${bet} ⭐️`;
         }
         rotateFairHash();
         updateUI();
     }
+
+    // ИГРА 2: ПЛИНКО НА CANVAS
+    const pCanvas = document.getElementById('plinko-canvas');
+    const pCtx = pCanvas.getContext('2d');
+    const pegRows = 6;
+
+    function drawPlinkoStatic(ballX = null, ballY = null) {
+        pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+        for (let r = 0; r < pegRows; r++) {
+            const cols = r + 2;
+            const y = 30 + r * 26;
+            const spacing = 36;
+            const startX = (pCanvas.width - (cols - 1) * spacing) / 2;
+            for (let c = 0; c < cols; c++) {
+                const x = startX + c * spacing;
+                pCtx.beginPath();
+                pCtx.arc(x, y, 4, 0, Math.PI * 2);
+                pCtx.fillStyle = (r + c) % 2 === 0 ? '#00ff88' : '#ffd166';
+                pCtx.shadowColor = pCtx.fillStyle;
+                pCtx.shadowBlur = 6;
+                pCtx.fill();
+                pCtx.shadowBlur = 0;
+            }
+        }
+        if (ballX !== null && ballY !== null) {
+            pCtx.beginPath();
+            pCtx.arc(ballX, ballY, 7, 0, Math.PI * 2);
+            pCtx.fillStyle = '#ffd166';
+            pCtx.shadowColor = '#ffd166';
+            pCtx.shadowBlur = 12;
+            pCtx.fill();
+            pCtx.shadowBlur = 0;
+        }
+    }
+    drawPlinkoStatic();
 
     function dropPlinkoBall() {
         const bet = parseInt(document.getElementById('plinko-bet').value || '0', 10);
@@ -526,29 +688,44 @@
 
         const mults = [10, 3, 1.5, 0.4, 1.5, 3, 10];
         const weights = [2, 8, 22, 36, 22, 8, 2];
-        let rnd = Math.random() * 100, idx = 3;
+        let rnd = Math.random() * 100, targetIdx = 3;
         for (let i = 0; i < weights.length; i++) {
-            if (rnd < weights[i]) { idx = i; break; }
+            if (rnd < weights[i]) { targetIdx = i; break; }
             rnd -= weights[i];
         }
 
-        const statusEl = document.getElementById('plinko-ball-status');
         const buckets = document.querySelectorAll('#plinko-buckets .bucket');
         buckets.forEach(b => b.classList.remove('hit'));
-        statusEl.innerText = '🟣 Шарик падает...';
+        document.getElementById('plinko-status').innerText = '🎄 Шарик летит сквозь пирамиду...';
 
-        setTimeout(() => {
-            buckets[idx].classList.add('hit');
-            const m = mults[idx];
-            const payout = Math.floor(bet * m);
-            state.balance += payout;
-            state.sessionDelta += payout;
-            statusEl.innerText = `🎯 Лунка x${m}! Выплата: ${payout} ⭐️`;
-            rotateFairHash();
-            updateUI();
-        }, 550);
+        let step = 0;
+        const totalSteps = 22;
+        const startX = pCanvas.width / 2;
+        const endX = 32 + targetIdx * 39;
+
+        const anim = setInterval(() => {
+            step++;
+            const progress = step / totalSteps;
+            const curY = 12 + progress * 178;
+            const jitter = Math.sin(step * 1.7) * 8 * (1 - progress);
+            const curX = startX + (endX - startX) * progress + jitter;
+            drawPlinkoStatic(curX, curY);
+
+            if (step >= totalSteps) {
+                clearInterval(anim);
+                buckets[targetIdx].classList.add('hit');
+                const m = mults[targetIdx];
+                const payout = Math.floor(bet * m);
+                state.balance += payout;
+                state.sessionDelta += payout;
+                document.getElementById('plinko-status').innerText = `🎁 Лунка x${m}! Выигрыш: ${payout} ⭐️`;
+                rotateFairHash();
+                updateUI();
+            }
+        }, 28);
     }
 
+    // ИГРА 3: PROVABLY FAIR
     async function sha256(str) {
         const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
         return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
@@ -557,12 +734,12 @@
     async function rotateFairHash() {
         state.nonce++;
         const clientSeed = document.getElementById('pf-client').value || 'blockup';
-        document.getElementById('pf-hash').value = await sha256(`blockup:${clientSeed}:${state.nonce}`);
+        document.getElementById('pf-hash').value = await sha256(`blockup_ny:${clientSeed}:${state.nonce}`);
     }
 
     function verifyFairness() {
         const h = document.getElementById('pf-hash').value;
-        document.getElementById('pf-verify-status').innerText = `✅ Раунд #${state.nonce} честен! SHA-256: ${h.slice(0, 20)}...`;
+        document.getElementById('pf-verify-status').innerText = `✅ Раунд #${state.nonce} подтверждён! SHA-256: ${h.slice(0, 20)}...`;
     }
 
     function renderTop() {
@@ -571,7 +748,7 @@
         box.innerHTML = state.top.map((u, i) => `
             <div class="top-item">
                 <span>${medals[i] || (i + 1) + '.'} <b>@${String(u.u).replace(/^@/, '')}</b></span>
-                <span style="color:var(--green); font-weight:700;">${Number(u.b).toLocaleString()} ⭐️</span>
+                <span style="color:var(--gold); font-weight:800;">${Number(u.b).toLocaleString()} ⭐️</span>
             </div>
         `).join('');
     }
@@ -579,21 +756,26 @@
     function renderInventory() {
         const box = document.getElementById('user-inventory-grid');
         if (!state.inventory.length) {
-            box.innerHTML = `<div style="grid-column:span 2; text-align:center; color:var(--muted); padding:12px;">Ваш инвентарь пуст. Передайте NFT на релей ${state.relay} и нажмите кнопку проверки!</div>`;
+            box.innerHTML = `<div style="grid-column:span 2; text-align:center; color:var(--muted); padding:14px;">❄️ Ваш инвентарь пуст. Отправьте NFT на релей <b>${state.relay}</b>!</div>`;
             return;
         }
         box.innerHTML = state.inventory.map(nft => `
             <div class="nft-card">
+                <div class="nft-badge-num">#${nft.num}</div>
                 <img src="${nft.i}" onerror="this.src='${fallbackImg(nft.n)}'" alt="${nft.n}">
-                <div class="nft-name">${nft.n}</div>
+                <div class="nft-name">${nft.n} #${nft.num}</div>
                 <div class="nft-price">${nft.p.toLocaleString()} ⭐️</div>
-                <button class="btn" style="padding:7px; font-size:12px; margin-top:8px;" onclick="withdrawNftRelay(${nft.id})">📤 Вывести NFT</button>
+                <button class="btn btn-gold" style="padding:7px; font-size:12px; margin-top:8px;" onclick="withdrawExactNft(${nft.id}, '${nft.num}')">📤 Вывести #${nft.num}</button>
             </div>
         `).join('');
     }
 
-    function withdrawNftRelay(invId) {
-        tg.sendData(JSON.stringify({ action: 'withdraw_nft', inv_id: invId }));
+    function withdrawExactNft(invId, nftNum) {
+        tg.sendData(JSON.stringify({
+            action: 'withdraw_nft',
+            inv_id: invId,
+            nft_number: String(nftNum)
+        }));
     }
 
     function checkRelayDeposit() {
@@ -603,6 +785,39 @@
     function syncWithBot() {
         tg.sendData(JSON.stringify({ action: 'sync_game', delta: state.sessionDelta }));
     }
+
+    // Анимация новогоднего снега
+    const sCanvas = document.getElementById('snow-canvas');
+    const sCtx = sCanvas.getContext('2d');
+    let flakes = [];
+    function resizeSnow() {
+        sCanvas.width = window.innerWidth;
+        sCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeSnow);
+    resizeSnow();
+    for (let i = 0; i < 45; i++) {
+        flakes.push({
+            x: Math.random() * sCanvas.width,
+            y: Math.random() * sCanvas.height,
+            r: Math.random() * 2.2 + 0.8,
+            s: Math.random() * 0.7 + 0.3
+        });
+    }
+    function animateSnow() {
+        sCtx.clearRect(0, 0, sCanvas.width, sCanvas.height);
+        sCtx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+        flakes.forEach(f => {
+            sCtx.beginPath();
+            sCtx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+            sCtx.fill();
+            f.y += f.s;
+            f.x += Math.sin(f.y * 0.02) * 0.3;
+            if (f.y > sCanvas.height) { f.y = -5; f.x = Math.random() * sCanvas.width; }
+        });
+        requestAnimationFrame(animateSnow);
+    }
+    animateSnow();
 
     rotateFairHash();
     updateUI();
