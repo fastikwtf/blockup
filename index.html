@@ -1,0 +1,1264 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b2244">
+<title>BlockUP — Winter Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --bg: #0b2244;
+    --card: #153568;
+    --card2: #0c1b36;
+    --line: #60a5fa;
+    --text: #ffffff;
+    --muted: #93c5fd;
+    --star: #fbbf24;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', system-ui, sans-serif;
+    overscroll-behavior: none;
+    overflow-x: hidden;
+  }
+  body {
+    background: radial-gradient(120% 70% at 50% -10%, #2563eb 0%, #0d254c 55%, #07142b 100%) fixed;
+  }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; transition: transform .12s ease; }
+  button:active:not(:disabled) { transform: scale(0.96); }
+  button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* Падающий новогодний снег */
+  #snowCanvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Новогодняя светящаяся гирлянда сверху (как на 15.jpg) */
+  .garland {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    justify-content: space-around;
+    padding: 4px 10px 8px;
+    border-bottom: 2px dashed rgba(147, 197, 253, 0.3);
+    margin-bottom: 6px;
+  }
+  .bulb {
+    width: 10px;
+    height: 14px;
+    border-radius: 50% 50% 60% 60%;
+    animation: twinkle 1.4s infinite alternate ease-in-out;
+  }
+  .bulb:nth-child(4n+1) { background: #ef4444; box-shadow: 0 0 10px #ef4444; animation-delay: 0s; }
+  .bulb:nth-child(4n+2) { background: #fbbf24; box-shadow: 0 0 10px #fbbf24; animation-delay: 0.35s; }
+  .bulb:nth-child(4n+3) { background: #22c55e; box-shadow: 0 0 10px #22c55e; animation-delay: 0.7s; }
+  .bulb:nth-child(4n+4) { background: #38bdf8; box-shadow: 0 0 10px #38bdf8; animation-delay: 1.05s; }
+  @keyframes twinkle {
+    0% { opacity: 0.45; transform: scale(0.9); }
+    100% { opacity: 1; transform: scale(1.1); }
+  }
+
+  #app { position: relative; z-index: 2; max-width: 480px; margin: 0 auto; min-height: 100vh; padding: 4px 12px 110px; }
+
+  /* Шапка */
+  .top { display: flex; align-items: center; gap: 10px; padding: 4px 0 12px; }
+  .brand { display: flex; align-items: center; gap: 9px; flex: 1; font-weight: 900; letter-spacing: .06em; font-size: 20px; color: #fbbf24; text-shadow: 0 2px 0 #000; }
+  .brand-logo { width: 38px; height: 38px; border-radius: 10px; object-fit: cover; border: 2px solid #93c5fd; background: var(--card); }
+  .balance { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 14px; border: 2px solid #93c5fd; background: linear-gradient(180deg, #1e40af, #132a56); font-size: 16px; font-weight: 900; box-shadow: inset 0 3px 0 #dbeafe, 0 4px 10px rgba(0,0,0,0.35); }
+  .star { color: var(--star); }
+
+  /* Заснеженные баннеры */
+  .live-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; background: #0b1f40; border: 2px solid #60a5fa; font-size: 12px; font-weight: 900; color: #ef4444; margin-bottom: 8px; }
+  .live-badge i { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+  .snow-banner {
+    position: relative;
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #1c4587, #0e264c);
+    border: 3px solid #60a5fa;
+    box-shadow: inset 0 4px 0 #eff6ff, 0 6px 14px rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+  .drops-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 14px; }
+  .drop-slot { aspect-ratio: 1; border-radius: 12px; background: linear-gradient(180deg, #1e4b8f, #0c2040); border: 2px solid #93c5fd; box-shadow: inset 0 3px 0 #eff6ff; display: grid; place-items: center; font-size: 24px; }
+  .game-icon-box { width: 42px; height: 42px; border-radius: 10px; background: #0a1933; border: 2px solid #60a5fa; display: grid; place-items: center; font-size: 22px; }
+  .game-banner-left { display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 900; }
+  .game-banner-pill { padding: 8px 18px; border-radius: 999px; border: 2px solid #93c5fd; background: rgba(255,255,255,0.14); font-size: 15px; font-weight: 800; }
+  .chevron { font-size: 22px; font-weight: 900; transition: transform .2s ease; color: #dbeafe; }
+  .chevron.open { transform: rotate(90deg); }
+
+  /* ======== АПГРЕЙДЕР: ВРАЩАЮЩАЯСЯ СТРЕЛКА-МОРКОВКА И СТАТИЧНЫЕ ПРОЦЕНТЫ ======== */
+  .card {
+    background: linear-gradient(160deg, #173b70, #0d2142);
+    border: 3px solid #60a5fa;
+    box-shadow: inset 0 4px 0 #eff6ff, 0 8px 22px rgba(0,0,0,0.45);
+    border-radius: 22px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .upgr-logo {
+    text-align: center;
+    font-size: 40px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    color: #ffffff;
+    text-shadow: 0 4px 0 #1e3a8a, 0 0 18px rgba(59,130,246,0.7);
+    margin: 4px 0 8px;
+  }
+  .upgr-logo span { color: #38bdf8; }
+
+  .upgr-wheel-box {
+    width: 230px;
+    height: 230px;
+    margin: 22px auto 14px;
+    border-radius: 50%;
+    border: 12px solid #3b82f6;
+    box-shadow: inset 0 0 0 4px #1d4ed8, 0 0 0 3px #eff6ff, 0 12px 28px rgba(0,0,0,0.55);
+    background: conic-gradient(#22c55e 0deg 0deg, #1e293b 0deg 360deg);
+    position: relative;
+    display: grid;
+    place-items: center;
+  }
+  /* Контейнер стрелки-морковки, который ВРАЩАЕТСЯ вокруг центра */
+  .upgr-arrow-rotator {
+    position: absolute;
+    inset: -24px;
+    pointer-events: none;
+    z-index: 6;
+    transition: transform 3s cubic-bezier(.14, .82, .18, 1);
+    will-change: transform;
+  }
+  .upgr-carrot-pointer {
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 34px;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.65));
+  }
+  /* Центральный круг с процентами — СТОИТ НА МЕСТЕ, НЕ КРУТИТСЯ */
+  .upgr-center-fixed {
+    width: 152px;
+    height: 152px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #152c52 0%, #0b1830 100%);
+    border: 3px solid #60a5fa;
+    box-shadow: inset 0 0 14px rgba(0,0,0,0.65);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 4;
+    padding: 10px;
+    text-align: center;
+  }
+  .upgr-pct-text {
+    font-size: 32px;
+    font-weight: 900;
+    color: #ffffff;
+    line-height: 1.05;
+  }
+  .upgr-sub-info {
+    font-size: 12px;
+    font-weight: 800;
+    color: #93c5fd;
+    margin-top: 4px;
+  }
+
+  /* Карточки NFT (как на скриншотах 3, 4, 7) */
+  .nft-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .nft-card {
+    border-radius: 18px;
+    border: 2px solid #93c5fd;
+    background: #102444;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: inset 0 2px 0 #eff6ff, 0 6px 14px rgba(0,0,0,0.4);
+  }
+  .nft-card-art {
+    height: 130px;
+    display: grid;
+    place-items: center;
+    position: relative;
+    background: linear-gradient(145deg, #fbbf24, #d97706);
+  }
+  .nft-card-art img {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,0.45));
+  }
+  .nft-card-body { padding: 10px 12px; text-align: left; }
+  .nft-card-title { font-size: 15px; font-weight: 900; color: #fff; }
+  .nft-card-sub { font-size: 11px; font-weight: 700; color: #93c5fd; margin: 2px 0 6px; }
+  .nft-card-price { font-size: 15px; font-weight: 900; color: #fbbf24; }
+
+  /* ======== ПИКСЕЛЬНЫЕ РАМКИ ЭКРАНА КРАША (1_7.jpg) ======== */
+  .px-frame {
+    position: relative;
+    background: #0d1627;
+    border: 3px solid #2b6cb0;
+    border-radius: 6px;
+    box-shadow: inset 0 0 0 2px #1a365d, 0 0 0 2px #050811, 0 6px 16px rgba(0,0,0,0.6);
+    margin-bottom: 12px;
+  }
+  .px-frame::before {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    pointer-events: none;
+    background:
+      linear-gradient(90deg, #fff 6px, transparent 6px) 0 0 / 16px 3px no-repeat,
+      linear-gradient(90deg, #fff 6px, transparent 6px) 100% 0 / 16px 3px no-repeat,
+      linear-gradient(90deg, #fff 6px, transparent 6px) 0 100% / 16px 3px no-repeat,
+      linear-gradient(90deg, #fff 6px, transparent 6px) 100% 100% / 16px 3px no-repeat,
+      linear-gradient(0deg, #fff 6px, transparent 6px) 0 0 / 3px 16px no-repeat,
+      linear-gradient(0deg, #fff 6px, transparent 6px) 100% 0 / 3px 16px no-repeat,
+      linear-gradient(0deg, #fff 6px, transparent 6px) 0 100% / 3px 16px no-repeat,
+      linear-gradient(0deg, #fff 6px, transparent 6px) 100% 100% / 3px 16px no-repeat;
+    z-index: 5;
+  }
+  .crash-screen { position: relative; height: 290px; overflow: hidden; background: linear-gradient(180deg, #061326 0%, #0d284e 65%, #1a4980 100%); border-radius: 3px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 22px; }
+  .crash-stars { position: absolute; inset: 0; background-image: radial-gradient(#fff 1.5px, transparent 1.5px), radial-gradient(#8bb8f8 2px, transparent 2px); background-size: 70px 70px, 110px 110px; opacity: 0.75; pointer-events: none; }
+  .crash-timer-big { position: relative; z-index: 4; font-size: 62px; font-weight: 900; line-height: 1; color: #ffffff; text-shadow: 0 4px 14px rgba(0, 0, 0, 0.5); }
+  .crash-subtext { position: relative; z-index: 4; margin-top: 8px; font-size: 16px; font-weight: 700; color: #b0c4de; }
+  .rocket-wrap { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); width: 110px; height: 145px; z-index: 3; transition: transform 0.1s linear; }
+  .rocket-wrap.flying { animation: rocketShake 0.18s infinite alternate ease-in-out; }
+  @keyframes rocketShake { 0% { margin-left: -1.5px; } 100% { margin-left: 1.5px; } }
+  .flame-anim { transform-origin: 50% 105px; animation: flamePulse 0.12s infinite alternate; }
+  @keyframes flamePulse { 0% { transform: scaleY(0.92); } 100% { transform: scaleY(1.12); } }
+  .winter-landscape { position: absolute; left: 0; right: 0; bottom: 0; height: 160px; width: 100%; z-index: 2; pointer-events: none; }
+
+  .players-box { padding: 12px 14px; background: #141a29; min-height: 82px; display: flex; flex-direction: column; justify-content: space-between; }
+  .players-header { font-size: 14px; font-weight: 700; color: #7b8ea8; text-transform: uppercase; }
+  .players-empty { text-align: center; color: #55667d; font-size: 15px; font-weight: 700; padding: 8px 0 4px; }
+  .player-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; background: #0d1320; border-radius: 6px; margin-top: 6px; font-size: 14px; font-weight: 700; }
+
+  .crash-bet-btn { width: 100%; height: 60px; background: #5c9dff; border: 3px solid #2b6cb0; box-shadow: inset 0 0 0 3px #8ec0ff, 0 0 0 2px #050811; border-radius: 6px; font-size: 20px; font-weight: 900; color: #ffffff; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; text-transform: uppercase; }
+  .crash-bet-btn.danger { background: #ef4444; border-color: #991b1b; box-shadow: inset 0 0 0 3px #fca5a5, 0 0 0 2px #050811; }
+
+  .bet-panel { padding: 12px; background: #141a29; }
+  .bet-panel-head { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700; color: #7b8ea8; margin-bottom: 10px; }
+  .bet-top-row { display: grid; grid-template-columns: 1fr 48px 48px 58px; gap: 8px; margin-bottom: 10px; }
+  .px-subbox { position: relative; background: #1e2638; border: 2px solid #3b82f6; box-shadow: inset 0 0 0 2px #1d4ed8, 0 0 0 1.5px #050811; border-radius: 5px; height: 48px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; }
+  .bet-input-box { justify-content: flex-start; padding: 0 14px; gap: 8px; }
+  .bet-input-box input { width: 100%; background: none; border: 0; outline: none; color: #fff; font-size: 22px; font-weight: 900; font-family: inherit; }
+  .bet-presets-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .preset-btn.active { background: #4a8df8; box-shadow: inset 0 0 0 2px #93c5fd, 0 0 0 1.5px #050811; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .mt { margin-top: 12px; }
+  .muted { color: var(--muted); }
+  .small { font-size: 13px; }
+  .btn { display: flex; align-items: center; justify-content: center; gap: 8px; height: 50px; border-radius: 14px; padding: 0 16px; font-weight: 800; font-size: 15px; border: 2px solid #93c5fd; background: linear-gradient(180deg, #3b82f6, #1d4ed8); color: #fff; box-shadow: inset 0 3px 0 #eff6ff, 0 4px 0 #1e3a8a; }
+  .btn.full { width: 100%; }
+
+  .xtr-grid5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 12px; }
+  .xtr-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+  .xtr-btn { padding: 10px 4px; border-radius: 12px; background: linear-gradient(180deg, #2563eb, #1e40af); border: 2px solid #93c5fd; box-shadow: inset 0 2px 0 #dbeafe; font-weight: 900; font-size: 14px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+
+  .prof { text-align: center; padding: 20px; }
+  .prof .ava { width: 88px; height: 88px; margin: 0 auto 10px; border-radius: 50%; background: #1d3557; display: grid; place-items: center; font-weight: 900; font-size: 34px; border: 3px solid #93c5fd; object-fit: cover; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; }
+  .stats div { background: #132a4f; padding: 14px; border-radius: 16px; border: 2px solid #60a5fa; box-shadow: inset 0 3px 0 #eff6ff; }
+  .stats b { font-size: 22px; display: block; color: #fff; margin-top: 4px; }
+
+  .field { width: 100%; height: 48px; border-radius: 14px; border: 2px solid #60a5fa; background: #0c1b36; padding: 0 14px; font-size: 16px; color: #fff; outline: none; font-weight: 700; }
+  .list { display: flex; flex-direction: column; gap: 8px; }
+  .li { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px; background: #132a4f; border: 2px solid #60a5fa; box-shadow: inset 0 2px 0 #dbeafe; font-weight: 800; }
+  .seg { display: flex; padding: 4px; border-radius: 14px; background: #0c1b36; border: 2px solid #60a5fa; margin-bottom: 12px; }
+  .seg button { flex: 1; height: 40px; border-radius: 10px; font-weight: 800; color: var(--muted); }
+  .seg button.on { background: #ffffff; color: #0f172a; }
+
+  .tabs { position: fixed; left: 50%; transform: translateX(-50%); bottom: max(10px, env(safe-area-inset-bottom)); width: min(460px, calc(100% - 20px)); display: flex; padding: 6px; border-radius: 22px; background: rgba(12, 24, 46, 0.96); border: 2px solid #60a5fa; z-index: 10; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+  .tabs button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0; border-radius: 16px; color: var(--muted); font-size: 12px; font-weight: 800; }
+  .tabs button.on { color: #0f172a; background: #ffffff; }
+
+  .toast { position: fixed; left: 50%; top: 16px; transform: translate(-50%, -180%); padding: 12px 20px; border-radius: 14px; background: #132747; border: 2px solid #60a5fa; font-weight: 800; z-index: 40; transition: transform .25s ease; max-width: 92%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.6); }
+  .toast.on { transform: translate(-50%, 0); }
+  .sheet-wrap { position: fixed; inset: 0; background: rgba(0,0,0,0.72); backdrop-filter: blur(4px); display: none; align-items: flex-end; justify-content: center; z-index: 25; }
+  .sheet-wrap.on { display: flex; }
+  .sheet { width: 100%; max-width: 480px; max-height: 86vh; overflow: auto; background: #163a70; border: 3px solid #93c5fd; border-bottom: 0; border-radius: 26px 26px 0 0; padding: 20px; box-shadow: inset 0 4px 0 #eff6ff; }
+</style>
+</head>
+<body>
+<canvas id="snowCanvas"></canvas>
+
+<!-- Новогодняя гирлянда -->
+<div class="garland">
+  <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+  <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+  <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+</div>
+
+<div id="app">
+  <header class="top">
+    <div class="brand">
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='8' fill='%23132747'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-size='22'>⛏️</text></svg>" alt="" class="brand-logo" id="topAvatar">
+      <span>BLOCKUP ❄️</span>
+    </div>
+    <button class="balance" onclick="openDeposit()"><span id="bal">0</span><span>з.</span><span style="margin-left:4px;font-size:18px">+</span></button>
+  </header>
+
+  <main id="view"></main>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="games" class="on"><span>⚡ Игры</span></button>
+    <button data-tab="top"><span>🏆 Топ</span></button>
+    <button data-tab="inventory"><span>🎁 Инвентарь</span></button>
+    <button data-tab="profile"><span>👤 Профиль</span></button>
+  </nav>
+</div>
+
+<div class="sheet-wrap" id="sheetWrap"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// Анимация падающего новогоднего снега
+(function initSnow() {
+  const cv = document.getElementById("snowCanvas");
+  const ctx = cv.getContext("2d");
+  let W, H;
+  const resize = () => { W = cv.width = window.innerWidth; H = cv.height = window.innerHeight; };
+  resize();
+  window.addEventListener("resize", resize);
+  const flakes = Array.from({ length: 42 }, () => ({
+    x: Math.random() * W, y: Math.random() * H,
+    s: Math.random() * 3 + 1.5, v: Math.random() * 0.8 + 0.4, d: Math.random() * 0.6 - 0.3
+  }));
+  function drawSnow() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.65)";
+    for (const f of flakes) {
+      ctx.fillRect(Math.floor(f.x), Math.floor(f.y), f.s, f.s);
+      f.y += f.v; f.x += f.d;
+      if (f.y > H) { f.y = -5; f.x = Math.random() * W; }
+      if (f.x > W) f.x = 0; if (f.x < 0) f.x = W;
+    }
+    requestAnimationFrame(drawSnow);
+  }
+  drawSnow();
+})();
+
+const tg = window.Telegram?.WebApp;
+try { tg.ready(); tg.expand(); } catch {}
+
+const tgUser = tg?.initDataUnsafe?.user || {};
+const INIT = tg?.initData || "";
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const view = $("#view");
+let ME = null;
+let crashInterval = null;
+let gamesMenuExpanded = true;
+let isSpinning = false;
+
+async function api(path, body) {
+  const r = await fetch("/api" + path, {
+    method: body ? "POST" : "GET",
+    headers: { "X-Init-Data": INIT, "content-type": "application/json" },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const j = await r.json().catch(() => ({ ok: false, error: "Нет связи с сервером" }));
+  if (!j.ok) throw new Error(j.error || j.detail || "Ошибка");
+  if (typeof j.balance === "number") setBal(j.balance);
+  return j;
+}
+
+function setBal(b) {
+  const val = typeof b === "number" ? b : (ME?.balance || 0);
+  if (ME) ME.balance = val;
+  $("#bal").textContent = Math.floor(val).toLocaleString("ru-RU");
+}
+
+function toast(msg, err) {
+  const t = $("#toast");
+  if (!t) return;
+  t.textContent = msg;
+  t.style.borderColor = err ? "#ef4444" : "#60a5fa";
+  t.className = "toast on";
+  setTimeout(() => t.className = "toast", 2800);
+}
+
+function openSheet(html, onMount) {
+  $("#sheet").innerHTML = `<button class="btn" style="float:right;width:36px;height:36px;padding:0;border-radius:50%" onclick="closeSheet()">✕</button>` + html;
+  $("#sheetWrap").classList.add("on");
+  onMount?.($("#sheet"));
+}
+function closeSheet() { $("#sheetWrap").classList.remove("on"); }
+
+const WINTER_FOREST_SVG = `
+<svg class="winter-landscape" viewBox="0 0 400 150" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="95,130 115,65 135,130" fill="#0c264e"/>
+  <polygon points="130,130 148,75 166,130" fill="#0e2d5c"/>
+  <polygon points="240,130 258,72 276,130" fill="#0e2d5c"/>
+  <polygon points="270,130 292,62 314,130" fill="#0c264e"/>
+  <polygon points="-10,135 35,15 80,135" fill="#123a6d"/>
+  <polygon points="0,100 35,15 70,100" fill="#1b4d89"/>
+  <polygon points="10,65 35,15 60,65" fill="#2b6cb0"/>
+  <path d="M22,38 L35,15 L48,38 Q35,44 22,38 Z" fill="#cbe3ff"/>
+  <path d="M12,68 L35,42 L58,68 Q35,76 12,68 Z" fill="#9ec5ff"/>
+  <path d="M2,102 L35,70 L68,102 Q35,112 2,102 Z" fill="#7aaef7"/>
+  <polygon points="320,135 365,15 410,135" fill="#123a6d"/>
+  <polygon points="330,100 365,15 400,100" fill="#1b4d89"/>
+  <polygon points="340,65 365,15 390,65" fill="#2b6cb0"/>
+  <path d="M352,38 L365,15 L378,38 Q365,44 352,38 Z" fill="#cbe3ff"/>
+  <path d="M342,68 L365,42 L388,68 Q365,76 342,68 Z" fill="#9ec5ff"/>
+  <path d="M332,102 L365,70 L398,102 Q365,112 332,102 Z" fill="#7aaef7"/>
+  <ellipse cx="200" cy="142" rx="95" ry="26" fill="#ff9e2c" opacity="0.45"/>
+  <path d="M0,132 Q50,112 115,134 Q160,145 200,142 Q245,145 285,134 Q350,112 400,132 L400,150 L0,150 Z" fill="#5b8ce0"/>
+  <path d="M0,138 Q60,122 125,140 Q200,150 275,140 Q340,122 400,138 L400,150 L0,150 Z" fill="#a5cdfc"/>
+  <path d="M0,144 Q80,134 140,146 Q200,152 260,146 Q320,134 400,144 L400,150 L0,150 Z" fill="#e1f0ff"/>
+</svg>
+`;
+
+const SANTA_ROCKET_SVG = `
+<svg viewBox="0 0 100 135" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+  <g class="flame-anim">
+    <polygon points="36,102 50,134 64,102" fill="#ff5722"/>
+    <polygon points="41,102 50,126 59,102" fill="#ffc107"/>
+    <polygon points="45,102 50,118 55,102" fill="#ffffff"/>
+  </g>
+  <path d="M28,74 L14,96 L14,105 L32,98 Z" fill="#cbd5e1" stroke="#1e293b" stroke-width="2"/>
+  <path d="M72,74 L86,96 L86,105 L68,98 Z" fill="#94a3b8" stroke="#1e293b" stroke-width="2"/>
+  <path d="M50,20 C32,38 28,64 28,98 L72,98 C72,64 68,38 50,20 Z" fill="#dc2626" stroke="#450a0a" stroke-width="2.5"/>
+  <path d="M40,32 C34,48 33,68 33,95 L41,95 C41,68 42,48 45,32 Z" fill="#ef4444"/>
+  <rect x="47" y="78" width="6" height="24" rx="2" fill="#e2e8f0" stroke="#1e293b" stroke-width="1.5"/>
+  <circle cx="50" cy="60" r="16" fill="#94a3b8" stroke="#1e293b" stroke-width="2.5"/>
+  <circle cx="50" cy="60" r="12.5" fill="#134e4a"/>
+  <circle cx="50" cy="60" r="6" fill="#fed7aa"/>
+  <path d="M43,63 Q50,71 57,63 Q54,69 50,69 Q46,69 43,63 Z" fill="#ffffff"/>
+  <path d="M43,56 Q50,49 57,56 Z" fill="#dc2626"/>
+  <rect x="43" y="55" width="14" height="2.5" rx="1" fill="#ffffff"/>
+  <path d="M30,36 C32,16 55,10 68,26 C60,23 50,26 30,36 Z" fill="#dc2626" stroke="#450a0a" stroke-width="2"/>
+  <rect x="28" y="31" width="44" height="9" rx="4.5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="27" cy="30" r="6.5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+</svg>
+`;
+
+const VIEWS = {};
+
+// Состояние слотов Апгрейдера
+let upgrLeft = null;  // { type: 'stars', value: 100 } или { type: 'nft', id: 1, name: '...', value: 20000 }
+let upgrRight = null; // { type: 'nft', name: 'Heart Locket', value: 77777 } или { type: 'stars', value: 50000 }
+let arrowCurrentDeg = 0;
+
+VIEWS.games = () => {
+  if (crashInterval) clearInterval(crashInterval);
+  view.innerHTML = `
+    <div class="live-badge"><i></i> LIVE</div>
+    <div class="snow-banner" style="padding:12px 16px">
+      <div style="display:flex;align-items:center;gap:10px;font-weight:900;color:#fbbf24;font-size:17px">
+        <span style="font-size:26px">🏆</span>
+        <span>👑 ТОП ДРОП ДНЯ</span>
+      </div>
+      <span style="font-size:22px">🎄</span>
+    </div>
+    <div class="drops-row">
+      <div class="drop-slot">🎁</div>
+      <div class="drop-slot">⛄</div>
+      <div class="drop-slot">🎄</div>
+      <div class="drop-slot">🍭</div>
+      <div class="drop-slot">🐧</div>
+      <div class="drop-slot">🍪</div>
+    </div>
+
+    <button class="snow-banner" onclick="toggleGamesAccordion()">
+      <div class="game-banner-left">
+        <div class="game-icon-box">🎮</div>
+        <span>Игры</span>
+      </div>
+      <span class="chevron ${gamesMenuExpanded ? 'open' : ''}" id="gamesChev">›</span>
+    </button>
+
+    <div id="crashAccordionBody" style="display:${gamesMenuExpanded ? 'block' : 'none'}">
+      <div class="snow-banner" onclick="renderCrashGame()">
+        <div class="game-banner-left">
+          <span style="font-size:32px">🎅🚀</span>
+          <span>КРАШ</span>
+        </div>
+        <div class="game-banner-pill">Играть</div>
+      </div>
+    </div>
+
+    <!-- АПГРЕЙДЕР: Колесо с зеленым/красным сектором, крутящейся морковкой и НЕПОДВИЖНЫМИ процентами -->
+    <div class="card" style="text-align:center;margin-top:6px">
+      <div class="upgr-logo">Block<span>UP</span></div>
+      <div style="display:inline-block;padding:6px 24px;border-radius:999px;background:#2563eb;border:2px solid #93c5fd;font-weight:900;font-size:16px;box-shadow:inset 0 2px 0 #dbeafe">Апгрейдер ❄️</div>
+      
+      <div class="upgr-wheel-box" id="upgrWheelBox">
+        <!-- Вращается ТОЛЬКО этот блок со стрелкой-морковкой -->
+        <div class="upgr-arrow-rotator" id="upgrArrowRotator">
+          <div class="upgr-carrot-pointer">🥕</div>
+        </div>
+        <!-- Неподвижный центр с процентами -->
+        <div class="upgr-center-fixed">
+          <div class="upgr-pct-text" id="upgrPctText">—</div>
+          <div class="upgr-sub-info" id="upgrSubInfo">Выберите ставку и приз</div>
+        </div>
+      </div>
+      <div class="muted small" style="margin-bottom:8px">🟢 Зелёный сектор — Апгрейд · 🔴 Красный — Слив</div>
+
+      <div class="grid2 mt">
+        <button class="btn" id="leftSlotBtn" onclick="openLeftSelector()">▶ Выбрать</button>
+        <button class="btn" id="rightSlotBtn" onclick="openRightSelector()">▶ Выбрать</button>
+      </div>
+
+      <button class="btn full mt" id="spinUpgrBtn" style="height:52px;font-size:17px" onclick="spinUpgrader()">⚡ Крутить апгрейд</button>
+    </div>
+
+    <button class="snow-banner" onclick="go('inventory')">
+      <div class="game-banner-left">
+        <div class="game-icon-box">🎁</div>
+        <div style="text-align:left">
+          <div style="font-size:17px;font-weight:900">Инвентарь</div>
+          <div class="muted small" style="font-weight:700">Подарки</div>
+        </div>
+      </div>
+      <span class="chevron">›</span>
+    </button>
+  `;
+  updateUpgraderUI();
+};
+
+window.toggleGamesAccordion = () => {
+  gamesMenuExpanded = !gamesMenuExpanded;
+  const body = $("#crashAccordionBody");
+  const chev = $("#gamesChev");
+  if (body) body.style.display = gamesMenuExpanded ? "block" : "none";
+  if (chev) chev.classList.toggle("open", gamesMenuExpanded);
+};
+
+// =============== УМНЫЙ АПГРЕЙДЕР: РАСЧЁТ ШАНСА, СЕКТОРОВ И ВРАЩЕНИЕ СТРЕЛКИ ===============
+function calcUpgradeChance() {
+  if (!upgrLeft || !upgrRight) return 0;
+  if (upgrRight.value <= upgrLeft.value) return 0;
+  return Math.min(85, Math.max(1, +(((upgrLeft.value / upgrRight.value) * 90).toFixed(2))));
+}
+
+function updateUpgraderUI() {
+  const lBtn = $("#leftSlotBtn");
+  const rBtn = $("#rightSlotBtn");
+  const wheelBox = $("#upgrWheelBox");
+  const pctText = $("#upgrPctText");
+  const subInfo = $("#upgrSubInfo");
+
+  if (upgrLeft && upgrLeft.type === "stars" && upgrRight && upgrRight.type === "stars") {
+    upgrRight = null; // Жесткое правило: если слева звёзды, справа можно только NFT
+  }
+
+  if (lBtn) {
+    lBtn.textContent = upgrLeft
+      ? (upgrLeft.type === "stars" ? `★ ${upgrLeft.value.toLocaleString("ru-RU")}` : `🎁 ${upgrLeft.name}`)
+      : "▶ Выбрать";
+  }
+  if (rBtn) {
+    rBtn.textContent = upgrRight
+      ? (upgrRight.type === "stars" ? `★ ${upgrRight.value.toLocaleString("ru-RU")}` : `🎁 ${upgrRight.name}`)
+      : "▶ Выбрать";
+  }
+
+  const ch = calcUpgradeChance();
+  const greenDeg = (ch / 100) * 360;
+
+  if (wheelBox) {
+    if (ch > 0) {
+      wheelBox.style.background = `conic-gradient(#22c55e 0deg ${greenDeg}deg, #ef4444 ${greenDeg}deg 360deg)`;
+    } else {
+      wheelBox.style.background = `conic-gradient(#1e293b 0deg 360deg)`;
+    }
+  }
+  if (pctText) pctText.textContent = ch > 0 ? `${ch}%` : "—";
+  if (subInfo) {
+    if (!upgrLeft || !upgrRight) subInfo.textContent = "Выберите ставку и приз";
+    else if (upgrRight.value <= upgrLeft.value) subInfo.textContent = "Приз должен быть дороже!";
+    else subInfo.textContent = `x${(upgrRight.value / upgrLeft.value).toFixed(2)} · на ${upgrRight.name || (upgrRight.value + ' ★')}`;
+  }
+}
+
+window.openLeftSelector = async () => {
+  if (isSpinning) return;
+  const inv = await api("/inventory").catch(() => ({ items: [] }));
+  openSheet(`
+    <h2>🎄 Ваша ставка</h2>
+    <p class="muted small">NFT из вашего инвентаря или звёзды, которые вы ставите (Баланс: ★ ${ME?.balance || 0}).</p>
+    <div style="display:flex;gap:8px;align-items:center;background:#0a1933;padding:10px;border-radius:14px;margin-top:12px">
+      <span style="font-weight:800">Звёзды</span>
+      <input class="field" id="upgrStarsInp" type="number" value="750" min="10" placeholder="Сумма ★" style="height:42px">
+      <button class="btn" style="height:42px" onclick="selectLeftStars()">Выбрать</button>
+    </div>
+    <p class="muted small mt">Малой за тобой смотрит. Ваши реальные NFT в инвентаре:</p>
+    ${inv.items.length ? `<div class="nft-grid">${inv.items.map(it => `
+      <div class="nft-card" onclick="selectLeftNft(${it.id}, '${it.name.replace(/'/g, "")}', ${it.value})">
+        <div class="nft-card-art" style="background:${it.bg}">
+          <img src="${it.photo}" alt="${it.name}">
+        </div>
+        <div class="nft-card-body">
+          <div class="nft-card-title">${it.name} #${it.number}</div>
+          <div class="nft-card-sub">${it.subtitle}</div>
+          <div class="nft-card-price">★ ${it.value.toLocaleString("ru-RU")}</div>
+        </div>
+      </div>
+    `).join("")}</div>` : `<div class="card mt" style="text-align:center;background:#0a1933"><p class="muted small">У вас пока нет NFT в инвентаре. Отправьте подарок на @blockuprelay!</p></div>`}
+  `);
+};
+
+window.selectLeftStars = () => {
+  const v = Math.floor(+$("#upgrStarsInp")?.value || 0);
+  if (v < 10) { toast("Минимум 10 ★ для ставки!", true); return; }
+  upgrLeft = { type: "stars", value: v };
+  if (upgrRight && upgrRight.type === "stars") upgrRight = null;
+  updateUpgraderUI();
+  closeSheet();
+};
+
+window.selectLeftNft = (id, name, value) => {
+  upgrLeft = { type: "nft", id, name, value };
+  updateUpgraderUI();
+  closeSheet();
+};
+
+window.openRightSelector = async () => {
+  if (isSpinning) return;
+  if (!upgrLeft) {
+    toast("Сначала выберите вашу ставку в левом слоте!", true);
+    return;
+  }
+  const cat = await api("/nft-catalog").catch(() => ({ catalog: [] }));
+  // Фильтруем только те NFT, которые дороже ставки игрока
+  const availableNfts = (cat.catalog || []).filter(x => x.value > upgrLeft.value);
+
+  const starsBlock = upgrLeft.type === "nft" ? `
+    <div style="display:flex;gap:8px;align-items:center;background:#0a1933;padding:10px;border-radius:14px;margin-top:12px">
+      <span style="font-weight:800">Звёзды</span>
+      <input class="field" id="rightStarsInp" type="number" value="${Math.floor(upgrLeft.value * 2)}" placeholder="Сумма ★" style="height:42px">
+      <button class="btn" style="height:42px" onclick="selectRightStars()">Выбрать</button>
+    </div>
+  ` : `<p class="muted small">Так как слева выбраны Звёзды, справа можно выбрать <b>только NFT</b> дороже ${upgrLeft.value} ★:</p>`;
+
+  openSheet(`
+    <h2>🚗 Апгрейд на</h2>
+    ${starsBlock}
+    <div class="nft-grid mt">
+      ${availableNfts.map(item => {
+        const mult = (item.value / upgrLeft.value).toFixed(1);
+        const ch = Math.min(85, Math.max(1, ((upgrLeft.value / item.value) * 90))).toFixed(0);
+        return `
+          <div class="nft-card" onclick="selectRightNft('${item.name.replace(/'/g, "")}', ${item.value})" style="cursor:pointer">
+            <div class="nft-card-art">
+              <img src="${item.photo}" alt="${item.name}">
+            </div>
+            <div class="nft-card-body">
+              <div class="nft-card-title">${item.name}</div>
+              <div class="nft-card-price">★ ${item.value.toLocaleString("ru-RU")}</div>
+              <div class="nft-card-sub" style="margin-top:4px;color:#38bdf8">x${mult} - ${ch}%</div>
+            </div>
+          </div>
+        `;
+      }).join("") || `<p class="muted small">Нет NFT дороже вашей ставки</p>`}
+    </div>
+  `);
+};
+
+window.selectRightStars = () => {
+  if (!upgrLeft || upgrLeft.type === "stars") return;
+  const v = Math.floor(+$("#rightStarsInp")?.value || 0);
+  if (v <= upgrLeft.value) {
+    toast(`Сумма приза должна быть больше ${upgrLeft.value} ★!`, true);
+    return;
+  }
+  upgrRight = { type: "stars", value: v, name: `${v.toLocaleString("ru-RU")} ★` };
+  updateUpgraderUI();
+  closeSheet();
+};
+
+window.selectRightNft = (name, value) => {
+  upgrRight = { type: "nft", name, value };
+  updateUpgraderUI();
+  closeSheet();
+};
+
+window.spinUpgrader = async () => {
+  if (isSpinning) return;
+  if (!upgrLeft || !upgrRight) {
+    toast("Сначала выберите ставку слева и желаемый приз справа!", true);
+    return;
+  }
+  if (upgrRight.value <= upgrLeft.value) {
+    toast("Приз должен быть дороже вашей ставки!", true);
+    return;
+  }
+
+  isSpinning = true;
+  const spinBtn = $("#spinUpgrBtn");
+  if (spinBtn) spinBtn.disabled = true;
+
+  try {
+    const res = await api("/upgrade/spin", {
+      left_type: upgrLeft.type,
+      bet_stars: upgrLeft.type === "stars" ? upgrLeft.value : 0,
+      left_nft_id: upgrLeft.type === "nft" ? upgrLeft.id : 0,
+      right_type: upgrRight.type,
+      right_nft_name: upgrRight.type === "nft" ? upgrRight.name : "",
+      target_stars: upgrRight.type === "stars" ? upgrRight.value : 0
+    });
+
+    // Вращаем ТОЛЬКО стрелку-морковку до точного градуса res.stop_angle
+    const arrow = $("#upgrArrowRotator");
+    const baseSpins = arrowCurrentDeg - (arrowCurrentDeg % 360) + 1800; // 5 полных оборотов
+    arrowCurrentDeg = baseSpins + res.stop_angle;
+    if (arrow) {
+      arrow.style.transform = `rotate(${arrowCurrentDeg}deg)`;
+    }
+
+    setTimeout(() => {
+      if (res.won) {
+        toast(`🎉 АПГРЕЙД! Морковка попала в зелёную зону (${res.chance}%)! Вы выиграли ${res.prize_name}!`);
+      } else {
+        toast(`💥 СЛИВ! Морковка остановилась в красной зоне (ролл ${res.roll} > ${res.chance}%)`, true);
+      }
+      if (upgrLeft && upgrLeft.type === "nft") {
+        upgrLeft = null; // Потраченный NFT убираем из слота
+      }
+      updateUpgraderUI();
+      isSpinning = false;
+      if (spinBtn) spinBtn.disabled = false;
+    }, 3050);
+  } catch (e) {
+    toast(e.message, true);
+    isSpinning = false;
+    if (spinBtn) spinBtn.disabled = false;
+  }
+};
+
+// =============== КРАШ-РАКЕТА (1-в-1 КАК НА СКРИНШОТЕ 1_7.jpg) ===============
+let crashState = 'waiting';
+let currentMult = 1.0;
+let targetCrash = 2.0;
+let userBetPlaced = false;
+let currentBetAmount = 100;
+
+window.renderCrashGame = () => {
+  view.innerHTML = `
+    <button class="btn" onclick="go('games')" style="margin-bottom:10px;height:40px">← Назад к играм</button>
+
+    <div class="px-frame">
+      <div class="crash-screen" id="crashScreen">
+        <div class="crash-stars"></div>
+        <div class="crash-timer-big" id="crashBigText">5.0c</div>
+        <div class="crash-subtext" id="crashSubText">До старта ракеты</div>
+        <div class="rocket-wrap" id="rocketWrap">${SANTA_ROCKET_SVG}</div>
+        ${WINTER_FOREST_SVG}
+      </div>
+    </div>
+
+    <div class="px-frame players-box">
+      <div class="players-header" id="playersCount">ИГРОКИ · 0</div>
+      <div id="playersList"><div class="players-empty">Пока никто не поставил</div></div>
+    </div>
+
+    <button class="crash-bet-btn" id="crashMainBtn" onclick="actionCrash()">
+      <span id="crashBtnLabel">СТАВКА</span>
+      <span class="star">★</span>
+      <span id="crashBtnVal">100</span>
+    </button>
+
+    <div class="px-frame bet-panel">
+      <div class="bet-panel-head"><span>СТАВКА</span><span>макс. 300 000</span></div>
+      <div class="bet-top-row">
+        <div class="px-subbox bet-input-box">
+          <span class="star" style="font-size:20px">★</span>
+          <input type="number" id="betInput" value="100" min="1" max="300000">
+        </div>
+        <button class="px-subbox" onclick="modifyBet(0.5)">½</button>
+        <button class="px-subbox" onclick="modifyBet(2)">×2</button>
+        <button class="px-subbox" onclick="setExactBet(300000)">MAX</button>
+      </div>
+      <div class="bet-presets-row">
+        <button class="px-subbox preset-btn active" data-p="100" onclick="setExactBet(100)">100</button>
+        <button class="px-subbox preset-btn" data-p="500" onclick="setExactBet(500)">500</button>
+        <button class="px-subbox preset-btn" data-p="1000" onclick="setExactBet(1000)">1 000</button>
+        <button class="px-subbox preset-btn" data-p="5000" onclick="setExactBet(5000)">5 000</button>
+      </div>
+    </div>
+  `;
+
+  const inp = $("#betInput");
+  if (inp) {
+    inp.addEventListener("input", () => {
+      currentBetAmount = Math.max(1, Math.min(300000, Math.floor(+inp.value || 1)));
+      updateBetUI();
+    });
+  }
+  initAutoCrash();
+};
+
+window.setExactBet = (val) => {
+  currentBetAmount = Math.max(1, Math.min(300000, val));
+  const inp = $("#betInput");
+  if (inp) inp.value = currentBetAmount;
+  updateBetUI();
+};
+
+window.modifyBet = (factor) => {
+  currentBetAmount = Math.max(1, Math.min(300000, Math.floor(currentBetAmount * factor)));
+  const inp = $("#betInput");
+  if (inp) inp.value = currentBetAmount;
+  updateBetUI();
+};
+
+function updateBetUI() {
+  const btnVal = $("#crashBtnVal");
+  if (btnVal && crashState === 'waiting' && !userBetPlaced) {
+    btnVal.textContent = currentBetAmount.toLocaleString("ru-RU");
+  }
+  $$(".preset-btn").forEach(b => b.classList.toggle("active", +b.dataset.p === currentBetAmount));
+}
+
+function renderPlayersList() {
+  const countEl = $("#playersCount");
+  const listEl = $("#playersList");
+  if (!countEl || !listEl) return;
+  if (!userBetPlaced) {
+    countEl.textContent = "ИГРОКИ · 0";
+    listEl.innerHTML = `<div class="players-empty">Пока никто не поставил</div>`;
+  } else {
+    countEl.textContent = "ИГРОКИ · 1";
+    const uName = ME?.name || tgUser.first_name || "Maloy";
+    listEl.innerHTML = `<div class="player-row"><span>👤 ${uName}</span><span style="color:var(--star)">★ ${currentBetAmount.toLocaleString("ru-RU")}</span></div>`;
+  }
+}
+
+function initAutoCrash() {
+  if (crashInterval) clearInterval(crashInterval);
+  let countdown = 5.0;
+  crashState = 'waiting';
+  userBetPlaced = false;
+
+  const bigText = $("#crashBigText");
+  const subText = $("#crashSubText");
+  const rocketWrap = $("#rocketWrap");
+  const mainBtn = $("#crashMainBtn");
+  const btnLabel = $("#crashBtnLabel");
+  const btnVal = $("#crashBtnVal");
+
+  if (rocketWrap) {
+    rocketWrap.className = "rocket-wrap";
+    rocketWrap.style.transform = `translateX(-50%) translateY(0px) scale(1)`;
+    rocketWrap.innerHTML = SANTA_ROCKET_SVG;
+  }
+  if (bigText) bigText.style.color = "#ffffff";
+  if (mainBtn) { mainBtn.disabled = false; mainBtn.className = "crash-bet-btn"; }
+  if (btnLabel) btnLabel.textContent = "СТАВКА";
+  if (btnVal) btnVal.textContent = currentBetAmount.toLocaleString("ru-RU");
+  renderPlayersList();
+
+  crashInterval = setInterval(() => {
+    if (!$("#crashScreen")) { clearInterval(crashInterval); return; }
+
+    if (crashState === 'waiting') {
+      countdown -= 0.1;
+      if (countdown <= 0) {
+        crashState = 'flying';
+        currentMult = 1.0;
+        const r = Math.random();
+        if (r < 0.65) targetCrash = +(1.1 + Math.random() * 2.5).toFixed(2);
+        else if (r < 0.92) targetCrash = +(3.6 + Math.random() * 15).toFixed(2);
+        else targetCrash = +(20 + Math.random() * 180).toFixed(2);
+
+        if (rocketWrap) rocketWrap.classList.add("flying");
+        if (subText) subText.textContent = "Ракета в полёте...";
+
+        if (userBetPlaced && mainBtn) {
+          mainBtn.disabled = false;
+          mainBtn.className = "crash-bet-btn danger";
+          btnLabel.textContent = "ЗАБРАТЬ";
+        } else if (mainBtn) {
+          mainBtn.disabled = true;
+          btnLabel.textContent = "ИДЁТ РАУНД";
+          btnVal.textContent = "";
+        }
+      } else {
+        if (bigText) bigText.textContent = `${countdown.toFixed(1)}c`;
+        if (subText) subText.textContent = "До старта ракеты";
+      }
+    } else if (crashState === 'flying') {
+      const step = currentMult < 2 ? 0.03 : currentMult < 10 ? 0.12 : 0.65;
+      currentMult = Math.min(200, +(currentMult + step).toFixed(2));
+
+      if (currentMult >= targetCrash) {
+        crashState = 'crashed';
+        if (bigText) { bigText.textContent = `${targetCrash.toFixed(2)}x`; bigText.style.color = "#ef4444"; }
+        if (subText) subText.textContent = "Ракета взорвалась!";
+        if (rocketWrap) {
+          rocketWrap.className = "rocket-wrap";
+          rocketWrap.innerHTML = `<div style="font-size:74px;text-align:center;line-height:130px">💥</div>`;
+        }
+        if (userBetPlaced) {
+          toast(`Взрыв на ${targetCrash.toFixed(2)}x! Ставка сгорела`, true);
+          userBetPlaced = false;
+        }
+        if (mainBtn) {
+          mainBtn.disabled = true;
+          mainBtn.className = "crash-bet-btn";
+          btnLabel.textContent = "ВЗРЫВ";
+          btnVal.textContent = "";
+        }
+        setTimeout(() => { initAutoCrash(); }, 3000);
+      } else {
+        if (bigText) bigText.textContent = `${currentMult.toFixed(2)}x`;
+        if (rocketWrap) {
+          const lift = Math.min(85, (currentMult - 1) * 22);
+          rocketWrap.style.transform = `translateX(-50%) translateY(-${lift}px) scale(${Math.min(1.18, 1 + (currentMult - 1) * 0.02)})`;
+        }
+        if (userBetPlaced && btnVal) {
+          btnVal.textContent = Math.floor(currentBetAmount * currentMult).toLocaleString("ru-RU");
+        }
+      }
+    }
+  }, 100);
+}
+
+window.actionCrash = async () => {
+  const mainBtn = $("#crashMainBtn");
+  const btnLabel = $("#crashBtnLabel");
+  const btnVal = $("#crashBtnVal");
+
+  if (crashState === 'waiting' && !userBetPlaced) {
+    if ((ME?.balance || 0) < currentBetAmount) {
+      toast(`Недостаточно звёзд! Ваш баланс: ${ME?.balance || 0} ★`, true);
+      return;
+    }
+    userBetPlaced = true;
+    renderPlayersList();
+    if (mainBtn) mainBtn.disabled = true;
+    if (btnLabel) btnLabel.textContent = "СТАВКА ПРИНЯТА";
+    toast(`Ставка ★ ${currentBetAmount} принята! Ждём старта`);
+  } else if (crashState === 'flying' && userBetPlaced) {
+    const won = Math.floor(currentBetAmount * currentMult);
+    const multFixed = currentMult;
+    userBetPlaced = false;
+    if (mainBtn) { mainBtn.disabled = true; mainBtn.className = "crash-bet-btn"; }
+    if (btnLabel) btnLabel.textContent = `ЗАБРАЛИ ${multFixed.toFixed(2)}x`;
+    if (btnVal) btnVal.textContent = `${won.toLocaleString("ru-RU")}`;
+    toast(`Вы забрали ★ ${won.toLocaleString("ru-RU")} (${multFixed.toFixed(2)}x)!`);
+    await api("/play", { game: "crash", bet: currentBetAmount, mult: multFixed }).catch(e => toast(e.message, true));
+  }
+};
+
+// =============== ТОП ИГРОКОВ ===============
+VIEWS.top = async (period = 'today') => {
+  if (crashInterval) clearInterval(crashInterval);
+  view.innerHTML = `
+    <div class="card">
+      <h2 style="margin:0 0 12px">🏆 Топ игроков</h2>
+      <div class="seg">
+        <button class="${period==='today'?'on':''}" onclick="VIEWS.top('today')">Сегодня</button>
+        <button class="${period==='week'?'on':''}" onclick="VIEWS.top('week')">Неделя</button>
+      </div>
+      <div class="list" id="topList"><p class="muted small" style="text-align:center">Загрузка...</p></div>
+    </div>
+  `;
+  try {
+    const res = await fetch(`/api/top?period=${period}`).then(r => r.json());
+    const listEl = $("#topList");
+    if (!res.top || res.top.length === 0) {
+      listEl.innerHTML = `<div style="text-align:center; padding: 36px; font-size: 24px; font-weight: 900; color: var(--muted);">Нету</div>`;
+    } else {
+      listEl.innerHTML = res.top.map((item, idx) => `
+        <div class="li">
+          <b style="width:26px; font-size:18px">${idx + 1}</b>
+          <div style="flex:1"><b>${item.name}</b></div>
+          <span style="color:var(--star)">★ ${Math.floor(item.score).toLocaleString("ru-RU")}</span>
+        </div>
+      `).join("");
+    }
+  } catch {
+    $("#topList").innerHTML = `<div style="text-align:center; padding: 36px; font-size: 24px; font-weight: 900; color: var(--muted);">Нету</div>`;
+  }
+};
+
+// =============== ИНВЕНТАРЬ (С КАРТИНКАМИ, НОМЕРАМИ И ПРОВЕРКОЙ @blockuprelay) ===============
+VIEWS.inventory = async () => {
+  if (crashInterval) clearInterval(crashInterval);
+  const res = await api("/inventory").catch(() => ({ items: [] }));
+  view.innerHTML = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <h2 style="margin:0">🎁 Инвентарь</h2>
+        <button class="btn" style="height:36px;padding:0 12px;font-size:13px" onclick="openNftDepositSheet()">+ пополнить NFT</button>
+      </div>
+      ${res.items.length ? `<div class="nft-grid mt">${res.items.map(it => `
+        <div class="nft-card">
+          <div class="nft-card-art" style="background:${it.bg}">
+            <img src="${it.photo}" alt="${it.name}">
+          </div>
+          <div class="nft-card-body">
+            <div class="nft-card-title">${it.name} #${it.number}</div>
+            <div class="nft-card-sub">${it.subtitle}</div>
+            <div class="nft-card-price">★ ${it.value.toLocaleString("ru-RU")}</div>
+            <div class="grid2 mt" style="gap:6px">
+              <button class="btn" style="height:34px;font-size:12px;padding:0 6px" onclick="withdrawNftItem(${it.id})">Вывести</button>
+              <button class="btn" style="height:34px;font-size:12px;padding:0 6px" onclick="sellNftItem(${it.id})">Продать</button>
+            </div>
+          </div>
+        </div>
+      `).join("")}</div>` : `<div style="text-align:center; padding: 34px 10px; font-weight: 800; color: var(--muted);">У вас пока нет NFT в инвентаре</div>`}
+    </div>
+  `;
+};
+
+window.openNftDepositSheet = () => {
+  openSheet(`
+    <h2>🎁 Пополнить NFT</h2>
+    <p class="muted small">Отправьте ваш NFT-подарок на аккаунт релеера <b>@blockuprelay</b>, затем нажмите кнопку проверки ниже:</p>
+    <button class="btn full mt" onclick="window.open('https://t.me/blockuprelay', '_blank')">↗ Открыть @blockuprelay</button>
+    <button class="btn full mt" style="background:#22c55e;border-color:#86efac" onclick="checkRelayerGifts()">🔄 Проверить входящие от меня</button>
+  `);
+};
+
+window.checkRelayerGifts = async () => {
+  try {
+    const r = await api("/relayer/check", {});
+    toast(r.message);
+    if (r.credited > 0) { closeSheet(); go("inventory"); }
+  } catch (e) {
+    toast(e.message, true);
+  }
+};
+
+window.sellNftItem = async (id) => {
+  try {
+    const r = await api("/inventory/sell", { id });
+    toast(r.message);
+    go("inventory");
+  } catch (e) {
+    toast(e.message, true);
+  }
+};
+
+window.withdrawNftItem = (id) => {
+  openSheet(`
+    <h2>📤 Вывод NFT #${id}</h2>
+    <p class="muted small">Для автоматического вывода NFT подключите сессию Telethon (номер, код, облачный пароль) или подтвердите отправку через @blockuprelay.</p>
+    <button class="btn full mt" onclick="toast('Запрос на вывод NFT передан релееру @blockuprelay');closeSheet()">Запросить вывод</button>
+  `);
+};
+
+// =============== ПРОФИЛЬ ===============
+VIEWS.profile = async () => {
+  if (crashInterval) clearInterval(crashInterval);
+  try { ME = await api("/me"); setBal(ME.balance); } catch {}
+  if (!ME) ME = { id: tgUser.id || 1780244595, name: tgUser.first_name || "Maloy", balance: 0, games: 0, wins: 0, max_win: 0, gifts: 0, isAdmin: true, photo: tgUser.photo_url || "" };
+
+  const avatarHtml = ME.photo 
+    ? `<img src="${ME.photo}" class="ava" alt="ava">` 
+    : `<div class="ava">${(ME.name || "M")[0].toUpperCase()}</div>`;
+
+  view.innerHTML = `
+    <div class="card prof">
+      ${avatarHtml}
+      <div style="font-size:24px;font-weight:900">${ME.name} 🎄</div>
+      <div class="muted small">ID ${ME.id}</div>
+    </div>
+
+    <div class="card">
+      <div class="muted small">💼 Баланс</div>
+      <div style="font-size:32px;font-weight:900;margin:4px 0 14px">${Math.floor(ME.balance || 0).toLocaleString("ru-RU")} <span class="star">★</span></div>
+      <div class="grid2">
+        <button class="btn" style="background:#fff;color:#0f172a" onclick="openDeposit()">↓ Пополнить</button>
+        <button class="btn" onclick="openWithdraw()">↗ Вывести</button>
+      </div>
+    </div>
+
+    <div class="stats mt">
+      <div><span class="muted small">↑ Апгрейдов</span><b>${ME.games}</b></div>
+      <div><span class="muted small">🏆 Побед</span><b>${ME.wins}</b></div>
+      <div><span class="muted small">⚡ Лучший выигрыш</span><b>${ME.max_win} ★</b></div>
+      <div><span class="muted small">🎁 NFT в инвентаре</span><b>${ME.gifts}</b></div>
+    </div>
+
+    <div class="card mt">
+      <div style="font-weight:900;margin-bottom:8px">🎟 Промокод</div>
+      <div style="display:flex;gap:8px">
+        <input class="field" id="promoInp" placeholder="Введите код">
+        <button class="btn" onclick="toast('Промокод проверен')">Активировать</button>
+      </div>
+    </div>
+
+    ${ME.isAdmin ? `<button class="btn full mt" style="background:#ef4444;border-color:#fca5a5" onclick="openAdminPanel()">⚙️ Админ-панель и Telethon</button>` : ""}
+  `;
+};
+
+window.openDeposit = () => {
+  openSheet(`
+    <h2 style="margin:0 0 6px">Пополнить звёздами (XTR)</h2>
+    <div class="xtr-grid5">
+      <button class="xtr-btn" onclick="$('#depVal').value=100"><span>100</span><span class="star">★</span></button>
+      <button class="xtr-btn" onclick="$('#depVal').value=250"><span>250</span><span class="star">★</span></button>
+      <button class="xtr-btn" onclick="$('#depVal').value=500"><span>500</span><span class="star">★</span></button>
+      <button class="xtr-btn" onclick="$('#depVal').value=1000"><span>1000</span><span class="star">★</span></button>
+      <button class="xtr-btn" onclick="$('#depVal').value=5000"><span>5 000</span><span class="star">★</span></button>
+    </div>
+    <div class="xtr-grid3">
+      <button class="xtr-btn" onclick="$('#depVal').value=10000"><span>10 000</span><span class="star">★</span></button>
+      <button class="xtr-btn" onclick="$('#depVal').value=25000"><span>25 000</span><span class="star">★</span></button>
+      <button class="xtr-btn" onclick="$('#depVal').value=50000"><span>50 000</span><span class="star">★</span></button>
+    </div>
+    <div class="mt">
+      <input class="field" id="depVal" type="number" value="100" placeholder="Своя сумма: 10–100 000">
+      <button class="btn full mt" style="background:#ffffff;color:#0f172a;height:52px;font-size:18px" onclick="doDeposit()">Оплатить</button>
+    </div>
+  `);
+};
+
+window.doDeposit = async () => {
+  const val = Math.max(10, Math.min(100000, +$("#depVal").value || 100));
+  try {
+    const res = await api("/deposit", { amount: val });
+    if (res.link && tg?.openInvoice) {
+      tg.openInvoice(res.link, (status) => {
+        if (status === "paid") {
+          toast(`Оплата ${val} ★ (XTR) прошла успешно!`);
+          closeSheet();
+        }
+      });
+    } else if (res.link) {
+      window.location.href = res.link;
+    }
+  } catch (e) {
+    toast(e.message, true);
+  }
+};
+
+window.openWithdraw = () => {
+  openSheet(`
+    <h2>Вывод звёзд и NFT</h2>
+    <p class="muted small">От 100 ★. NFT выводятся из вкладки «Инвентарь» через подключённый аккаунт @blockuprelay.</p>
+    <div class="mt">
+      <input class="field" id="wVal" type="number" placeholder="Сумма звёзд">
+      <button class="btn full mt" style="background:#fff;color:#0f172a" onclick="toast('Заявка на вывод отправлена');closeSheet()">Вывести</button>
+    </div>
+  `);
+};
+
+// =============== АДМИН-ПАНЕЛЬ + TELETHON (НОМЕР, КОД, ОБЛАЧНЫЙ ПАРОЛЬ) ===============
+window.openAdminPanel = async () => {
+  openSheet(`
+    <h2>⚙️ Админ-панель BlockUP</h2>
+    
+    <div class="mt">
+      <h3>🔐 Подключение Telethon (@blockuprelay)</h3>
+      <p class="muted small">Вход по номеру, коду и облачному паролю для приёма и вывода NFT:</p>
+      <input class="field mt" id="telPhone" placeholder="+79990000000 (Номер телефона)">
+      <button class="btn full mt" onclick="authTelethon('phone')">1. Отправить код</button>
+      
+      <input class="field mt" id="telCode" placeholder="Код из Telegram">
+      <button class="btn full mt" onclick="authTelethon('code')">2. Подтвердить код</button>
+
+      <input class="field mt" id="telPass" type="password" placeholder="Облачный пароль (2FA, если есть)">
+      <button class="btn full mt" onclick="authTelethon('password')">3. Ввести облачный пароль</button>
+    </div>
+
+    <div class="mt" style="border-top:2px solid #60a5fa;padding-top:12px">
+      <h3>🎁 Выдать реальный NFT игроку</h3>
+      <input class="field mt" id="admNftUid" value="${ME?.id || 1780244595}" placeholder="Telegram ID игрока">
+      <input class="field mt" id="admNftName" placeholder="Название (например: Resistance Dog)">
+      <input class="field mt" id="admNftNum" type="number" value="579" placeholder="Номер гифта (например: 579)">
+      <button class="btn full mt" onclick="giveNftToUser()">Выдать NFT с картинкой</button>
+    </div>
+
+    <div class="mt" style="border-top:2px solid #60a5fa;padding-top:12px">
+      <h3>💰 Управление балансом и ценами</h3>
+      <input class="field mt" id="admUserId" value="${ME?.id || 1780244595}" placeholder="Telegram ID игрока">
+      <input class="field mt" id="admAmount" type="number" placeholder="Сумма звёзд (+ или -)">
+      <button class="btn full mt" onclick="updateUserBalance()">Изменить баланс</button>
+    </div>
+  `);
+};
+
+window.authTelethon = async (step) => {
+  try {
+    const r = await api("/admin/telethon-auth", {
+      step,
+      phone: $("#telPhone")?.value || "",
+      code: $("#telCode")?.value || "",
+      password: $("#telPass")?.value || ""
+    });
+    toast(r.message);
+  } catch (e) {
+    toast(e.message, true);
+  }
+};
+
+window.giveNftToUser = async () => {
+  try {
+    const r = await api("/admin/give-nft", {
+      user_id: +$("#admNftUid").value,
+      name: $("#admNftName").value,
+      number: +$("#admNftNum").value || 579
+    });
+    toast(r.message);
+  } catch (e) {
+    toast(e.message, true);
+  }
+};
+
+window.updateUserBalance = async () => {
+  try {
+    const r = await api("/admin/give-balance", {
+      user_id: +$("#admUserId").value,
+      amount: +$("#admAmount").value
+    });
+    toast(r.message);
+    ME = await api("/me");
+    setBal(ME.balance);
+  } catch (e) {
+    toast(e.message, true);
+  }
+};
+
+function go(name) {
+  $$("#tabs button").forEach(b => b.classList.remove("on"));
+  const btn = $(`[data-tab="${name}"]`);
+  if (btn) btn.classList.add("on");
+  (VIEWS[name] || VIEWS.games)();
+}
+
+$("#tabs").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (b) go(b.dataset.tab);
+});
+
+(async () => {
+  try {
+    ME = await api("/me");
+    setBal(ME.balance);
+    if (ME.photo) $("#topAvatar").src = ME.photo;
+  } catch {
+    ME = { id: tgUser.id || 1780244595, name: tgUser.first_name || "Maloy", balance: 0, games: 0, wins: 0, max_win: 0, gifts: 0, isAdmin: true, photo: tgUser.photo_url || "" };
+    setBal(0);
+    if (ME.photo) $("#topAvatar").src = ME.photo;
+  }
+  go("games");
+})();
+</script>
+</body>
+</html>
